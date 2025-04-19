@@ -1,0 +1,41 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "C:\\Users\\lenovo\\Desktop\\2nd year\\Blockchain\\event-ticketing-system\\Event-Ticketing-System\\contracts\\backend.sol": {
+      "lastModificationDate": 1744289968989,
+      "contentHash": "9b7fe2ab9e7ec77979e920fcb756fc42",
+      "sourceName": "contracts/backend.sol",
+      "solcConfig": {
+        "version": "0.8.28",
+        "settings": {
+          "evmVersion": "paris",
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.8.0"
+      ],
+      "artifacts": [
+        "Event"
+      ]
+    }
+  }
+}
