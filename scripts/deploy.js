@@ -1,15 +1,18 @@
-// const hardhat = import("hardhat");
-const { ethers } = require ("hardhat")
-// import { ethers } from "hardhat"
-async function main(){
-    const contract = await ethers.getContractFactory("Event")
-    const myContract = await contract.deploy()
-    await myContract.waitForDeployment()
-    const add = await myContract.getAddress()
-    console.log("deployed address: ", add)
+async function main() {
+    const [deployer] = await ethers.getSigners();
+    console.log("Deploying contracts with the account:", deployer.address);
+
+    const EventTicket = await ethers.getContractFactory("EventTicket");
+    const eventTicket = await EventTicket.deploy();
+    await eventTicket.waitForDeployment()
+    console.log(eventTicket.deploymentTransaction())
+    const contractAdd = await eventTicket.getAddress()
+    console.log("EventTicket deployed to:", contractAdd );
 }
 
-main().catch((error) => {
-    console.error(error);
-    process.exitCode = 1;
-  });
+main()
+    .then(() => process.exit(0))
+    .catch((error) => {
+        console.error(error);
+        process.exit(1);
+    });
