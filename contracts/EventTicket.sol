@@ -18,8 +18,9 @@ contract EventTicket is ERC721URIStorage, Ownable {
     }
 
     mapping(uint => Event) public events;
-    mapping(uint => uint) public ticketToEvent; // tokenId => eventId
-
+    mapping(uint => uint) public ticketToEvent; 
+    mapping(uint => bool) public ticketValidity; 
+    
     constructor() ERC721("EventTicket", "ETIX") {}
 
     function createEvent(
@@ -58,10 +59,20 @@ contract EventTicket is ERC721URIStorage, Ownable {
         _setTokenURI(tokenId, tokenURI);
 
         ticketToEvent[tokenId] = eventId;
+        ticketValidity[tokenId] = true;
     }
 
     function resellTicket(address to, uint tokenId) external {
         require(ownerOf(tokenId) == msg.sender, "Not the ticket owner");
+        ticketValidity[tokenId] = false;
         _transfer(msg.sender, to, tokenId);
+    }
+
+    function invalidateTicket(uint tokenId) external onlyOwner {
+        ticketValidity[tokenId] = false;
+    }
+
+    function isTicketValid(uint tokenId) external view returns (bool) {
+        return ticketValidity[tokenId];
     }
 }
