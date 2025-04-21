@@ -11,7 +11,7 @@ contract("EventTicket", (accounts) => {
   beforeEach(async () => {
     eventTicketInstance = await EventTicket.new({ from: organizer });
     const now = Math.floor(Date.now() / 1000);
-    await eventTicketInstance.createEvent("Concert", now + 1000, web3.utils.toWei("1", "ether"), 2, { from: organizer });
+    await eventTicketInstance.createEvent("Concert", now + 1000, web3.utils.toWei("0.025", "ether"), 2, { from: organizer });
     eventId = 0;
   });
 
@@ -25,7 +25,7 @@ contract("EventTicket", (accounts) => {
     const tokenURI = "ipfs://example-token-uri";
     await eventTicketInstance.buyTicket(eventId, tokenURI, {
       from: user1,
-      value: web3.utils.toWei("1", "ether")
+      value: web3.utils.toWei("0.025", "ether")
     });
 
     const owner = await eventTicketInstance.ownerOf(0);
@@ -36,17 +36,17 @@ contract("EventTicket", (accounts) => {
     const tokenURI = "ipfs://example-token-uri";
     await eventTicketInstance.buyTicket(eventId, tokenURI, {
       from: user1,
-      value: web3.utils.toWei("1", "ether")
+      value: web3.utils.toWei("0.025", "ether")
     });
     await eventTicketInstance.buyTicket(eventId, tokenURI, {
       from: user2,
-      value: web3.utils.toWei("1", "ether")
+      value: web3.utils.toWei("0.025", "ether")
     });
 
     try {
       await eventTicketInstance.buyTicket(eventId, tokenURI, {
         from: accounts[3],
-        value: web3.utils.toWei("1", "ether")
+        value: web3.utils.toWei("0.025", "ether")
       });
       assert.fail("Should not be able to buy more tickets than available");
     } catch (error) {
@@ -58,7 +58,7 @@ contract("EventTicket", (accounts) => {
     const tokenURI = "ipfs://resale-test";
     await eventTicketInstance.buyTicket(eventId, tokenURI, {
       from: user1,
-      value: web3.utils.toWei("1", "ether")
+      value: web3.utils.toWei("0.025", "ether")
     });
 
     await eventTicketInstance.resellTicket(user2, 0, { from: user1 });
@@ -71,7 +71,7 @@ contract("EventTicket", (accounts) => {
     const tokenURI = "ipfs://resale-test";
     await eventTicketInstance.buyTicket(eventId, tokenURI, {
       from: user1,
-      value: web3.utils.toWei("1", "ether")
+      value: web3.utils.toWei("0.025", "ether")
     });
 
     try {
