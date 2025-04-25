@@ -26,7 +26,20 @@ export const listTicket = async (tokenId, priceInWei) => {
 // Cancel the ticket listing
 export const cancelTicketListing = async (tokenId) => {
     const contract = await getMarketplaceContract();
-    const tx = await contract.cancelTicketListing(tokenId);
+    const tx = await contract.cancelListing(tokenId);
     await tx.wait();
     return tx;
+}
+
+// Buy ticket
+export const buyTicket = async (tokenId, priceInWei) => {
+    const contract = await getMarketplaceContract();
+    const tx = await contract.buyTicket(tokenId);
+    await tx.wait();
+    return tx;
+}
+
+// Fetch all listed tickets
+export const getListings = async () => {
+    // TODO: Check solidity file and make changes accordingly
 }
