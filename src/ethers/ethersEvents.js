@@ -1,7 +1,7 @@
 import { ethers, JsonRpcProvider } from 'ethers';
 import EventTicketABI from "../../build/contracts/EventTicket.json";
 
-const EVENT_TICKET_ADDRESS = '0x1dB1F6443eaAd898dA65463df291E5C9b48fFf03';
+const EVENT_TICKET_ADDRESS = '0xf9A9cfe03fAf9E94a4f5eBB465bb78d3ac04c174';
 // const INFURA_ID = 'd404f2d478314b50b2498dcfa1652902';
 
 // Create a provider and contract instance
