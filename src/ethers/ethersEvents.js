@@ -62,9 +62,7 @@ export const invalidateTicket = async (tokenId) => {
 };
 
 export async function getAvailableEvents() {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const contract = new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI, provider);
-  
+    const contract = await getWriteableContract()
     const eventCount = await contract.eventIdCounter();
     const currentTime = Math.floor(Date.now() / 1000);
     const availableEvents = [];
@@ -75,7 +73,7 @@ export async function getAvailableEvents() {
         id: i,
         name: eventData.name,
         date: Number(eventData.date),
-        price: Number(eventData.price),
+        price: eventData.price,
         totalTickets: Number(eventData.totalTickets),
         ticketsSold: Number(eventData.ticketsSold),
         organizer: eventData.organizer
