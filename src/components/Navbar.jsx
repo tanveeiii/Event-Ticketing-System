@@ -1,7 +1,14 @@
 import React, { useState } from "react";
-import { Menu, X, TicketCheck, Home, Calendar, Plus } from "lucide-react";
+import {
+  Menu,
+  X,
+  TicketCheck,
+  Home,
+  Calendar,
+  Plus,
+  ShoppingBag,
+} from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
-import { useEventContext } from "../context/EventContext";
 import MetaMaskLogin from "../components/MMLogin";
 
 const Navbar = () => {
