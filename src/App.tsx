@@ -8,6 +8,7 @@ import EventDetailsPage from './pages/EventDetailsPage';
 import DashboardPage from './pages/DashboardPage';
 import CreateEventPage from './pages/CreateEventPage';
 import ResellTicketPage from './pages/ResellTicketPage';
+import { ToastContainer } from 'react-toastify';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
             </Routes>
           </main>
         </div>
+        <ToastContainer />
       </Router>
     </EventProvider>
   );
