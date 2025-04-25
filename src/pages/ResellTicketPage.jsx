@@ -3,8 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useEventContext } from '../context/EventContext';
 import { DollarSign } from 'lucide-react';
 
-const ResellTicketPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+const ResellTicketPage = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const { tickets, events, toggleTicketResale } = useEventContext();
   
@@ -24,7 +24,7 @@ const ResellTicketPage: React.FC = () => {
     );
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     
     const price = parseFloat(resalePrice);
