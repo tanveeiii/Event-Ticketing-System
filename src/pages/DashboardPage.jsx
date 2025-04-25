@@ -3,9 +3,9 @@ import { useEventContext } from '../context/EventContext';
 import TicketCard from '../components/TicketCard';
 import { TicketCheck, ChevronRight, Activity } from 'lucide-react';
 
-const DashboardPage: React.FC = () => {
+const DashboardPage = () => {
   const { tickets, events, currentUser } = useEventContext();
-  const [activeTab, setActiveTab] = useState<'tickets' | 'activity'>('tickets');
+  const [activeTab, setActiveTab] = useState('tickets');
   
   // Get user's tickets with event information
   const userTickets = tickets.filter(ticket => ticket.userId === currentUser.id);
@@ -85,7 +85,7 @@ const DashboardPage: React.FC = () => {
                   <TicketCard 
                     key={ticket.id} 
                     ticket={ticket} 
-                    event={ticket.event!}
+                    event={ticket.event}
                     showResaleOption={true}
                   />
                 ))}
@@ -118,7 +118,7 @@ const DashboardPage: React.FC = () => {
                   <TicketCard 
                     key={ticket.id} 
                     ticket={ticket} 
-                    event={ticket.event!}
+                    event={ticket.event}
                     showResaleOption={false}
                     isPast={true}
                   />

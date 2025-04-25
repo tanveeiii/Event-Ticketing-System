@@ -1,14 +1,9 @@
 import React from 'react';
 import { Calendar, MapPin, Clock, DollarSign } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Event } from '../types';
 
-interface EventCardProps {
-  event: Event;
-}
-
-const EventCard: React.FC<EventCardProps> = ({ event }) => {
-  const formatDate = (dateStr: string) => {
+const EventCard = ({ event }) => {
+  const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     return new Intl.DateTimeFormat('en-US', { 
       month: 'long', 

@@ -1,16 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Ticket, Event } from '../types';
 import { Calendar, MapPin, Tag } from 'lucide-react';
 
-interface TicketCardProps {
-  ticket: Ticket;
-  event: Event;
-  showResaleOption?: boolean;
-  isPast?: boolean;
-}
-
-const TicketCard: React.FC<TicketCardProps> = ({ ticket, event, showResaleOption = false, isPast = false }) => {
+const TicketCard = ({ ticket, event, showResaleOption = false, isPast = false }) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
 
@@ -18,7 +10,7 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket, event, showResaleOption
     navigate(`/resell-ticket/${ticket.id}`);
   };
 
-  const formatDate = (date: string) => {
+  const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
@@ -50,22 +42,22 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket, event, showResaleOption
 
       <div className="p-6">
         <h3 className="text-xl font-bold text-gray-900 mb-2">{event.title}</h3>
-        
+
         <div className="space-y-2 mb-4">
           <div className="flex items-center text-gray-600">
             <Calendar className="h-5 w-5 mr-2" />
             <span>{formatDate(event.date)}</span>
           </div>
-          
+
           <div className="flex items-center text-gray-600">
             <MapPin className="h-5 w-5 mr-2" />
             <span>{event.location}</span>
           </div>
-          
+
           <div className="flex items-center text-gray-600">
             <Tag className="h-5 w-5 mr-2" />
             <span>
-              {ticket.forResale 
+              {ticket.forResale
                 ? `Resale Price: $${ticket.resalePrice?.toFixed(2)}`
                 : `Original Price: $${ticket.price.toFixed(2)}`}
             </span>
@@ -80,7 +72,7 @@ const TicketCard: React.FC<TicketCardProps> = ({ ticket, event, showResaleOption
             List for Resale
           </button>
         )}
-        
+
         {isPast && (
           <div className="text-center text-gray-500 text-sm mt-2">
             Event has ended
