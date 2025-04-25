@@ -1,30 +1,20 @@
 import { ethers, JsonRpcProvider } from 'ethers';
 import EventTicketABI from "../../build/contracts/EventTicket.json";
-import TicketMarketplaceABI from "../../build/contracts/TicketMarketplace.json"
 
 const EVENT_TICKET_ADDRESS = '0x0af4278FB0fac4400771533Ea9664d323607fE75';
-const TICKETMARKETPLACE_ADDRESS = '0x4C96C48bAD034c4FDC09ED5E4c1665382A34556E'
 const INFURA_ID = 'd404f2d478314b50b2498dcfa1652902';
 
 // Create a provider and contract instance
-const readProvider = new JsonRpcProvider(`https://mainnet.infura.io/v3/${INFURA_ID}`);
-const readContract = new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, readProvider);
+const eventProvider = new JsonRpcProvider(`https://mainnet.infura.io/v3/${INFURA_ID}`);
+const eventContract = new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, eventProvider);
 
-// Connect to wwallet and return writeable contract instance
+// Connect to wallet and return writeable contract instance
 export const getTicketContract = async () => {
     if (!window.ethereum) throw new Error("MetaMask not installed");
     const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
     await web3Provider.send("eth_requestAccounts", []);
     const signer = web3Provider.getSigner();
     return new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, signer);
-};
-
-export const getMarketplaceContract = async () => {
-    if (!window.ethereum) throw new Error("MetaMask not installed");
-    const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
-    await web3Provider.send("eth_requestAccounts", []);
-    const signer = web3Provider.getSigner();
-    return new ethers.Contract(TICKETMARKETPLACE_ADDRESS, TicketMarketplaceABI.abi, signer);
 };
 
 // Create event
@@ -45,12 +35,12 @@ export const buyTicket = async (eventId, ticketURI , priceInWei) => {
 
 // Fetch events
 export const getEvent = async(eventId) => {
-    return await readContract.events(eventId);
+    return await eventContract.events(eventId);
 }
 
 // Check ticket availability
 export const isTicketAvailable = async (tokenId) => {
-    return await readContract.isTicketValid(tokenId);
+    return await eventContract.isTicketValid(tokenId);
 }
 
 // Resell ticket
