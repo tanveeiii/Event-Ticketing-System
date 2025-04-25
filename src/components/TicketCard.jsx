@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Tag } from 'lucide-react';
+import PurchaseTicket from './PurchaseTicket';
 
 const TicketCard = ({ ticket, event, showResaleOption = false, isPast = false }) => {
   const navigate = useNavigate();
@@ -63,7 +64,14 @@ const TicketCard = ({ ticket, event, showResaleOption = false, isPast = false })
             </span>
           </div>
         </div>
-
+        {ticket.forResale && !isPast && (
+          <PurchaseTicket 
+            eventId={event.id} 
+            price={ticket.resalePrice || ticket.price} 
+            isResale={true}
+            ticketId={ticket.id}
+          />
+        )}
         {showResaleOption && !isPast && !ticket.forResale && (
           <button
             onClick={handleResellClick}

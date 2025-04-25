@@ -209,6 +209,13 @@ const EventDetailsPage = () => {
                     <CheckCircle size={18} className="mr-2" />
                     You already have a ticket for this event!
                   </div>
+                  <button
+                  onClick={handlePurchaseTicket}
+                  disabled={purchaseStatus !== 'idle'}
+                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 rounded-md transition-colors"
+                >
+                  Buy Another Ticket
+                </button>
                   <Link 
                     to="/dashboard" 
                     className="mt-4 block text-center bg-gray-100 text-gray-700 font-medium py-2 rounded-md hover:bg-gray-200 transition-colors"

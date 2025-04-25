@@ -73,6 +73,7 @@ const MarketplacePage = () => {
       </div>
 
       {filteredTickets.length > 0 ? (
+        <>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredTickets.map(ticket => (
             <TicketCard
@@ -81,14 +82,21 @@ const MarketplacePage = () => {
               event={ticket.event}
               showResaleOption={false}
             />
+            
           ))}
         </div>
+        <div className='p-100'>
+        
+            </div>
+        </>
       ) : (
         <div className="text-center py-16 bg-white rounded-lg shadow-sm">
           <p className="text-xl text-gray-600 mb-4">No resale tickets available at the moment.</p>
           <p className="text-gray-500">Check back later for more tickets!</p>
         </div>
-      )}
+      )
+      
+      }
     </div>
   );
 };
