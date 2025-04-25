@@ -8,6 +8,7 @@ import EventDetailsPage from './pages/EventDetailsPage';
 import DashboardPage from './pages/DashboardPage';
 import CreateEventPage from './pages/CreateEventPage';
 import ResellTicketPage from './pages/ResellTicketPage';
+import MarketplacePage from './pages/MarketplacePage';
 import { ToastContainer } from 'react-toastify';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/create-event" element={<CreateEventPage />} />
               <Route path="/resell-ticket/:id" element={<ResellTicketPage />} />
+              <Route path="/marketplace" element={<MarketplacePage />} />
             </Routes>
           </main>
         </div>
