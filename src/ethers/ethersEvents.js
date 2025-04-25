@@ -95,6 +95,7 @@ export async function getAvailableEvents() {
     await provider.send("eth_requestAccounts", []);
     const signer = provider.getSigner();
     const userAddress = await signer.getAddress();
+    const owner = await contract.ownerOf(tokenId);
     const contract = new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, provider);
     const nextTokenId = await contract.nextTokenId();
     const tickets = [];
@@ -109,6 +110,7 @@ export async function getAvailableEvents() {
   
           tickets.push({
             tokenId,
+            ownerAddress,
             eventId: Number(eventId),
             valid: isValid,
             tokenURI,
