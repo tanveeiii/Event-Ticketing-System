@@ -10,7 +10,7 @@ contract EventTicket is ERC721URIStorage, Ownable {
 
     struct Event {
         string name;
-        uint date;
+        uint256 date;
         uint price;
         uint totalTickets;
         uint ticketsSold;
