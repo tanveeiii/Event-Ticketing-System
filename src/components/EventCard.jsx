@@ -1,14 +1,14 @@
-import React from 'react';
-import { Calendar, MapPin, Clock, DollarSign } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React from "react";
+import { Calendar, MapPin, Clock, DollarSign } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const EventCard = ({ event }) => {
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
-    return new Intl.DateTimeFormat('en-US', { 
-      month: 'long', 
-      day: 'numeric', 
-      year: 'numeric' 
+    return new Intl.DateTimeFormat("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
     }).format(date);
   };
 
@@ -25,8 +25,10 @@ const EventCard = ({ event }) => {
         </div>
       </div>
       <div className="p-5">
-        <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-1">{event.title}</h3>
-        
+        <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-1">
+          {event.title}
+        </h3>
+
         <div className="mb-4 space-y-2">
           <div className="flex items-center text-gray-600">
             <Calendar size={16} className="mr-2 text-purple-500" />
@@ -45,16 +47,20 @@ const EventCard = ({ event }) => {
             <span>${event.price.toFixed(2)}</span>
           </div>
         </div>
-        
+
         <div className="flex justify-between items-center mt-5">
-          <span className={`${
-            event.availableTickets > 50 ? 'bg-green-100 text-green-800' : 
-            event.availableTickets > 10 ? 'bg-amber-100 text-amber-800' : 
-            'bg-red-100 text-red-800'
-          } px-3 py-1 rounded-full text-xs font-medium`}>
+          <span
+            className={`${
+              event.availableTickets > 50
+                ? "bg-green-100 text-green-800"
+                : event.availableTickets > 10
+                ? "bg-amber-100 text-amber-800"
+                : "bg-red-100 text-red-800"
+            } px-3 py-1 rounded-full text-xs font-medium`}
+          >
             {event.availableTickets} tickets left
           </span>
-          <Link 
+          <Link
             to={`/events/${event.id}`}
             className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
           >
