@@ -78,7 +78,7 @@ const Navbar = () => {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`block px-3 py-2 rounded-md text-base font-medium flex items-center ${
+                className={`px-3 py-2 rounded-md text-base font-medium flex items-center ${
                   isActive(item.href)
                     ? 'text-purple-600 bg-purple-50'
                     : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
@@ -93,7 +93,7 @@ const Navbar = () => {
             <div className="pt-4 pb-3 border-t border-gray-200">
               <Link
                 to="/dashboard"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-purple-600 hover:bg-purple-50 flex items-center"
+                className="px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-purple-600 hover:bg-purple-50 flex items-center"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <img
