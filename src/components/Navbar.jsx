@@ -16,10 +16,17 @@ const Navbar = () => {
     { name: "Home", href: "/", icon: <Home size={20} /> },
     { name: "Events", href: "/events", icon: <Calendar size={20} /> },
     { name: "Create Event", href: "/create-event", icon: <Plus size={20} /> },
+    {
+      name: "Marketplace",
+      href: "/marketplace",
+      icon: <ShoppingBag size={20} />,
+    },
     { name: "My Tickets", href: "/dashboard", icon: <TicketCheck size={20} /> },
   ];
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
 
   return (
     <nav className="bg-white shadow-md fixed w-full z-10">
@@ -34,6 +41,7 @@ const Navbar = () => {
             </Link>
           </div>
 
+          {/* Desktop menu */}
           <div className="hidden md:flex items-center space-x-4">
             {navigation.map((item) => (
               <Link
@@ -55,6 +63,7 @@ const Navbar = () => {
             </div>
           </div>
 
+          {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
             <button
               onClick={toggleMenu}
@@ -66,6 +75,7 @@ const Navbar = () => {
         </div>
       </div>
 
+      {/* Mobile menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-white border-t border-gray-200">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
