@@ -2,6 +2,8 @@ import { ethers, JsonRpcProvider } from 'ethers';
 import EventTicketABI from "../../build/contracts/EventTicket.json";
 
 const EVENT_TICKET_ADDRESS = '0x3358D6f2643e922C010D9e88d74b8d81b1ca4404';
+const PROVIDER_URL = "http://192.168.247.110:7545";
+const provider = new ethers.JsonRpcProvider(PROVIDER_URL);
 // const INFURA_ID = 'd404f2d478314b50b2498dcfa1652902';
 
 // Create a provider and contract instance
@@ -16,7 +18,7 @@ export const getWriteableContract = async () => {
     console.log(web3Provider)
     await web3Provider.send("eth_requestAccounts", []);
     const signer = await web3Provider.getSigner();
-    return new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, signer);
+    return new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, provider);
 };
 
 // Create event

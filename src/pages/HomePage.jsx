@@ -1,13 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, Ticket, PlusCircle, BarChart } from 'lucide-react';
 import { useEventContext } from '../context/EventContext';
 import EventCard from '../components/EventCard';
+import { getAvailableEvents } from '../ethers/ethersEvents';
 
 const HomePage = () => {
+  const [eventss, setEvents] = useState();
   const { events } = useEventContext();
   
   const featuredEvents = events.slice(0, 3);
+  useEffect(() => {
+    return async() => {
+      const data = await getAvailableEvents();
+      console.log("HELL")
+      console.log(data);
+    }
+  }, [])
+  
 
   return (
     <div className="container mx-auto px-4 py-8">
