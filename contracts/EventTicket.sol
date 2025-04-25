@@ -48,7 +48,7 @@ contract EventTicket is ERC721URIStorage, Ownable {
 
         eventIdCounter++;
 
-        emit EventCreated(eventName, eventDate, eventPrice, totalTickets);
+        emit EventCreated(name, date, price, totalTickets);
     }
 
     function buyTicket(uint eventId, string memory tokenURI) external payable {
