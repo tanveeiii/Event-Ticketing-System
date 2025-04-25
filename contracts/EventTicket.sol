@@ -60,13 +60,26 @@ contract EventTicket is ERC721URIStorage, Ownable {
 
         ticketToEvent[tokenId] = eventId;
         ticketValidity[tokenId] = true;
+
+        address payable organizer = payable(_event.organizer);
+        organizer.transfer(msg.value);
     }
 
-    function resellTicket(address to, uint tokenId) external {
-        require(ownerOf(tokenId) == msg.sender, "Not the ticket owner");
-        ticketValidity[tokenId] = false;
-        _transfer(msg.sender, to, tokenId);
-    }
+    function resellTicket(address to, uint tokenId) external payable {
+
+    require(ownerOf(tokenId) == msg.sender, "Not the ticket owner");
+    
+    uint resalePrice = msg.value; 
+
+    require(resalePrice > 0, "Resale price must be greater than 0");
+
+    ticketValidity[tokenId] = false;
+    _transfer(msg.sender, to, tokenId);
+
+    address payable seller = payable(msg.sender);
+    seller.transfer(resalePrice);
+}
+
 
     function invalidateTicket(uint tokenId) external onlyOwner {
         ticketValidity[tokenId] = false;
