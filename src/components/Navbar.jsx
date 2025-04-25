@@ -1,22 +1,22 @@
-import React, { useState } from 'react';
-import { Menu, X, TicketCheck, Home, Calendar, UserCircle, Plus } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
-import { useEventContext } from '../context/EventContext';
+import React, { useState } from "react";
+import { Menu, X, TicketCheck, Home, Calendar, Plus } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
+import { useEventContext } from "../context/EventContext";
+import MetaMaskLogin from "../components/MMLogin";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
-  const { currentUser } = useEventContext();
 
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
   const navigation = [
-    { name: 'Home', href: '/', icon: <Home size={20} /> },
-    { name: 'Events', href: '/events', icon: <Calendar size={20} /> },
-    { name: 'Create Event', href: '/create-event', icon: <Plus size={20} /> },
-    { name: 'My Tickets', href: '/dashboard', icon: <TicketCheck size={20} /> },
+    { name: "Home", href: "/", icon: <Home size={20} /> },
+    { name: "Events", href: "/events", icon: <Calendar size={20} /> },
+    { name: "Create Event", href: "/create-event", icon: <Plus size={20} /> },
+    { name: "My Tickets", href: "/dashboard", icon: <TicketCheck size={20} /> },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -28,7 +28,9 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link to="/" className="flex-shrink-0 flex items-center">
               <TicketCheck className="h-8 w-8 text-purple-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">EventHub</span>
+              <span className="ml-2 text-xl font-bold text-gray-900">
+                EventHub
+              </span>
             </Link>
           </div>
 
@@ -39,8 +41,8 @@ const Navbar = () => {
                 to={item.href}
                 className={`px-3 py-2 rounded-md text-sm font-medium flex items-center transition-colors duration-200 ${
                   isActive(item.href)
-                    ? 'text-purple-600 bg-purple-50'
-                    : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
+                    ? "text-purple-600 bg-purple-50"
+                    : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
                 }`}
               >
                 <span className="mr-2">{item.icon}</span>
@@ -49,14 +51,7 @@ const Navbar = () => {
             ))}
 
             <div className="ml-4 flex items-center">
-              <Link to="/dashboard" className="flex items-center">
-                <img
-                  className="h-8 w-8 rounded-full object-cover border-2 border-purple-200"
-                  src={currentUser.avatar}
-                  alt={currentUser.name}
-                />
-                <span className="ml-2 text-sm font-medium text-gray-700">{currentUser.name}</span>
-              </Link>
+              <MetaMaskLogin />
             </div>
           </div>
 
@@ -78,10 +73,10 @@ const Navbar = () => {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`block px-3 py-2 rounded-md text-base font-medium flex items-center ${
+                className={`px-3 py-2 rounded-md text-base font-medium flex items-center ${
                   isActive(item.href)
-                    ? 'text-purple-600 bg-purple-50'
-                    : 'text-gray-600 hover:text-purple-600 hover:bg-purple-50'
+                    ? "text-purple-600 bg-purple-50"
+                    : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -91,18 +86,7 @@ const Navbar = () => {
             ))}
 
             <div className="pt-4 pb-3 border-t border-gray-200">
-              <Link
-                to="/dashboard"
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-600 hover:text-purple-600 hover:bg-purple-50 flex items-center"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                <img
-                  className="h-8 w-8 rounded-full object-cover border-2 border-purple-200 mr-3"
-                  src={currentUser.avatar}
-                  alt={currentUser.name}
-                />
-                {currentUser.name}
-              </Link>
+              <MetaMaskLogin />
             </div>
           </div>
         </div>
