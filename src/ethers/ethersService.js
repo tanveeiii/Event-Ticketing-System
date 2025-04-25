@@ -1,4 +1,4 @@
-const { formatEther, JsonRpcProvider } = require('ethers');
+import { ethers, JsonRpcProvider } from 'ethers';
 import EventTicketABI from "../../build/contracts/EventTicket.json";
 
 const CONTRACT_ADDRESS = '0xDC724594e639F5082104073F72fefb3B56e12F90';
@@ -45,15 +45,15 @@ export const isTicketAvailable = async (tokenId) => {
 
 // Resell ticket
 export const resellTicket = async (buyer, tokenId) => {
-    const contract = await getWriteContract();
-    const tx = await contract.resellTicket(to, tokenId);
+    const contract = await getWriteableContract();
+    const tx = await contract.resellTicket(buyer, tokenId);
     await tx.wait();
     return tx;
 }
 
 // Invalidate ticket (Owner Only)
 export const invalidateTicket = async (tokenId) => {
-    const contract = await getWriteContract();
+    const contract = await getWriteableContract();
     const tx = await contract.invalidateTicket(tokenId);
     await tx.wait();
     return tx;
