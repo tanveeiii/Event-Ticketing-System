@@ -3,7 +3,7 @@ import { useEventContext } from '../context/EventContext';
 import EventCard from '../components/EventCard';
 import { Search, Filter } from 'lucide-react';
 
-const EventsPage: React.FC = () => {
+const EventsPage = () => {
   const { events } = useEventContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('');

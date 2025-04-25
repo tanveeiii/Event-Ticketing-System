@@ -3,17 +3,17 @@ import { useParams, Link } from 'react-router-dom';
 import { Calendar, MapPin, Clock, DollarSign, User, AlertCircle, CheckCircle } from 'lucide-react';
 import { useEventContext } from '../context/EventContext';
 
-const EventDetailsPage: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+const EventDetailsPage = () => {
+  const { id } = useParams();
   const { events, purchaseTicket, tickets } = useEventContext();
   const [event, setEvent] = useState(events.find(e => e.id === id));
-  const [purchaseStatus, setPurchaseStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [purchaseStatus, setPurchaseStatus] = useState('idle');
   const [isScrolled, setIsScrolled] = useState(false);
   
   const userTicketsForEvent = tickets.filter(t => t.eventId === id);
   const hasTicket = userTicketsForEvent.length > 0;
   
-  const formatDate = (dateStr: string) => {
+  const formatDate = (dateStr) => {
     const date = new Date(dateStr);
     return new Intl.DateTimeFormat('en-US', { 
       weekday: 'long',

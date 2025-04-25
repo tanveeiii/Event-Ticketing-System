@@ -4,10 +4,9 @@ import { Calendar, Ticket, PlusCircle, BarChart } from 'lucide-react';
 import { useEventContext } from '../context/EventContext';
 import EventCard from '../components/EventCard';
 
-const HomePage: React.FC = () => {
+const HomePage = () => {
   const { events } = useEventContext();
   
-  // Get featured events (first 3)
   const featuredEvents = events.slice(0, 3);
 
   return (
