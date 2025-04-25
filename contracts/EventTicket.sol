@@ -60,6 +60,9 @@ contract EventTicket is ERC721URIStorage, Ownable {
 
         ticketToEvent[tokenId] = eventId;
         ticketValidity[tokenId] = true;
+
+        address payable organizer = payable(_event.organizer);
+        organizer.transfer(msg.value);
     }
 
     function resellTicket(address to, uint tokenId) external {
