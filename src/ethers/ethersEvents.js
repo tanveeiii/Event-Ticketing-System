@@ -18,7 +18,8 @@ export const getWriteableContract = async () => {
     console.log(web3Provider)
     await web3Provider.send("eth_requestAccounts", []);
     const signer = await web3Provider.getSigner();
-    return new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, provider);
+    return new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, signer);
+    // return contract.connect(signer)
 };
 
 // Create event
@@ -26,6 +27,9 @@ export const createEvent = async (eventName, eventDate, eventPrice, totalTickets
     const contract = await getWriteableContract();
     const tx = await contract.createEvent(eventName, eventDate, eventPrice, totalTickets);
     await tx.wait();
+    contract.on('EventCreated', (eventName, eventDate, eventPrice, totalTickets) => {
+        console.log(`Event created: ${eventName} on ${eventDate} priced at ${eventPrice} with ${totalTickets} tickets`);
+    });
     return tx;
 }
 
