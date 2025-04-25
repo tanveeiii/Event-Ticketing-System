@@ -20,7 +20,7 @@ const Navbar = () => {
     { name: 'My Tickets', href: '/dashboard', icon: <TicketCheck size={20} /> },
   ];
 
-  const isActive = (path: string) => {
+  const isActive = (path) => {
     return location.pathname === path;
   };
 
@@ -95,7 +95,7 @@ const Navbar = () => {
                 {item.name}
               </Link>
             ))}
-            
+
             <div className="pt-4 pb-3 border-t border-gray-200">
               <Link
                 to="/dashboard"
