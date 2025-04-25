@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { ethers } from "ethers";
 
 declare global {
@@ -10,6 +10,8 @@ declare global {
 export default function MetaMaskLogin() {
   const [address, setAddress] = useState<string>("");
   const [loggedIn, setLoggedIn] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Load login state from localStorage on mount
   useEffect(() => {
@@ -19,6 +21,21 @@ export default function MetaMaskLogin() {
       setAddress(storedAddress);
       setLoggedIn(true);
     }
+  }, []);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const loginWithMetaMask = async () => {
@@ -51,34 +68,73 @@ export default function MetaMaskLogin() {
   const logout = () => {
     setAddress("");
     setLoggedIn(false);
+    setDropdownOpen(false);
     localStorage.removeItem("wallet-address");
     localStorage.removeItem("is-logged-in");
     localStorage.removeItem("dapp-nonce");
   };
 
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
+
   return (
-    <div className="p-4 flex flex-row justify-center gap-4 items-center space-y-4">
+    <div className="p-4 flex flex-row justify-center items-center">
       {loggedIn ? (
-        <>
-          <p className="text-lg font-semibold text-gray-700">
-            Logged in as:{" "}
-            <span className="text-purple-600 cursor-pointer" title={address}>
-              {address.slice(0, 6)}...{address.slice(-4)}
-            </span>
-          </p>
+        <div className="relative" ref={dropdownRef}>
           <button
-            onClick={logout}
-            className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+            onClick={toggleDropdown}
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-purple-600 text-white hover:bg-purple-700 transition-colors duration-200"
+            aria-expanded={dropdownOpen}
           >
-            Logout
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
+            </svg>
           </button>
-        </>
+
+          {dropdownOpen && (
+            <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg z-10 overflow-hidden">
+              <div className="px-4 py-3 border-b border-gray-200">
+                <p className="text-sm font-medium text-gray-800">
+                  Account Info
+                </p>
+              </div>
+              <div className="px-4 py-3">
+                <p className="text-sm text-gray-700 font-medium">Wallet ID:</p>
+                <p className="text-xs text-gray-500 break-all mt-1">
+                  {address}
+                </p>
+              </div>
+              <div className="px-4 py-2 border-t border-gray-200">
+                <button
+                  onClick={logout}
+                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100 rounded-md transition-colors duration-150"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       ) : (
         <button
           onClick={loginWithMetaMask}
-          className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+          className="bg-purple-600 hover:bg-purple-700 text-white px-4 sm:px-6 py-2 rounded-md text-sm font-medium transition-colors duration-200 flex items-center"
         >
-          Login with MetaMask
+          <span className="hidden sm:inline mr-2">Login with MetaMask</span>
+          <span className="sm:hidden">Connect</span>
+          {/* TODO : Add a MetaMask icon */}
         </button>
       )}
     </div>
