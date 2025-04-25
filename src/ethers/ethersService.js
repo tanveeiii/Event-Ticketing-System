@@ -59,9 +59,3 @@ export const invalidateTicket = async (tokenId) => {
     return tx;
 };
 
-const main = async () => {
-    const balance = await readProvider.getBalance('0xd7830925daf4a323c3781a57c4aa57a512838743');
-    console.log("Balance:", formatEther(balance), "ETH");
-};
-
-main();
