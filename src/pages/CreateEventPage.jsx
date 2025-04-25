@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useEventContext } from '../context/EventContext';
 import { Calendar, MapPin, Clock, DollarSign, Users, Image, Info } from 'lucide-react';
+import { createEvent } from '../ethers/ethersEvents';
+import { ethers } from 'ethers';
 
 const CreateEventPage = () => {
   const navigate = useNavigate();
@@ -27,7 +29,7 @@ const CreateEventPage = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     const newEvent = {
@@ -38,7 +40,10 @@ const CreateEventPage = () => {
       ticketsSold: 0,
       createdAt: new Date().toISOString()
     };
-    
+
+    const txData = await createEvent(formData.title, Math.floor(new Date(formData.date).getTime() / 1000), ethers.parseEther(formData.price.toString()), Number(formData.capacity))
+    console.log(txData)
+
     addEvent(newEvent);
     navigate('/events/' + newEvent.id);
   };
