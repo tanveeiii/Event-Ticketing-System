@@ -7,6 +7,7 @@ interface IEventTicket {
     function isTicketValid(uint tokenId) external view returns (bool);
 }
 
+// Contract to resell tickets in the marketplace
 contract TicketMarketplace {
     struct Listing {
         address seller;
