@@ -72,7 +72,7 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.17;\r\n\r\nimport \"@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol\";\r\nimport \"@openzeppelin/contracts/access/Ownable.sol\";\r\n\r\ninterface IEventTicket {\r\n    function transferFrom(address from, address to, uint256 tokenId) external;\r\n\r\n    function ownerOf(uint256 tokenId) external view returns (address);\r\n\r\n    function isTicketValid(uint tokenId) external view returns (bool);\r\n}\r\n\r\n// Contract to resell tickets in the marketplace\r\ncontract TicketMarketplace {\r\n    struct Listing {\r\n        address seller;\r\n        uint price;\r\n    }\r\n\r\n    address public eventTicketAddress;\r\n    mapping(uint => Listing) public listings;\r\n\r\n    constructor(address _eventTicketAddress) {\r\n        eventTicketAddress = _eventTicketAddress;\r\n    }\r\n\r\n    function listTicket(uint tokenId, uint price) external {\r\n        IEventTicket ticket = IEventTicket(eventTicketAddress);\r\n\r\n        require(ticket.ownerOf(tokenId) == msg.sender, \"Not the ticket owner\");\r\n        require(ticket.isTicketValid(tokenId), \"Ticket is invalid\");\r\n        require(price > 0, \"Price must be greater than 0\");\r\n\r\n        listings[tokenId] = Listing(msg.sender, price);\r\n    }\r\n\r\n    function cancelListing(uint tokenId) external {\r\n        require(listings[tokenId].seller == msg.sender, \"Not the seller\");\r\n        delete listings[tokenId];\r\n    }\r\n\r\n    function buyTicket(uint tokenId) external payable {\r\n        Listing memory item = listings[tokenId];\r\n        require(item.price > 0, \"Ticket not for sale\");\r\n        require(msg.value == item.price, \"Incorrect payment\");\r\n\r\n        // Transfer the ticket\r\n        IEventTicket(eventTicketAddress).transferFrom(\r\n            item.seller,\r\n            msg.sender,\r\n            tokenId\r\n        );\r\n\r\n        // Pay the seller\r\n        payable(item.seller).transfer(msg.value);\r\n\r\n        // Remove listing\r\n        delete listings[tokenId];\r\n    }\r\n\r\n    function getListing(\r\n        uint tokenId\r\n    ) external view returns (address seller, uint price) {\r\n        Listing memory item = listings[tokenId];\r\n        return (item.seller, item.price);\r\n    }\r\n}\r\n",
-  "sourcePath": "C:\\Users\\lenovo\\Desktop\\2nd year\\Blockchain\\event-ticketing-system\\Event-Ticketing-System\\contracts\\TicketMarketplace.sol",
+  "sourcePath": "C:\\Users\\asus\\Event-Ticketing-System\\contracts\\TicketMarketplace.sol",
   "ast": {
     "absolutePath": "project:/contracts/TicketMarketplace.sol",
     "exportedSymbols": {
@@ -2832,7 +2832,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.16",
-  "updatedAt": "2025-04-25T20:12:28.424Z",
+  "updatedAt": "2025-04-25T20:36:34.754Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},
