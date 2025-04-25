@@ -134,77 +134,7 @@ export default function MetaMaskLogin() {
         >
           <span className="hidden sm:inline mr-2">Login with MetaMask</span>
           <span className="sm:hidden">Connect</span>
-          <svg
-            className="h-5 w-5 ml-1"
-            viewBox="0 0 404 420"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M382.254 19.2241L236.771 136.388L267.396 58.7651L382.254 19.2241Z"
-              fill="white"
-              stroke="white"
-              strokeWidth="5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M22.3691 19.2241L166.574 137.573L137.229 58.7651L22.3691 19.2241Z"
-              fill="white"
-              stroke="white"
-              strokeWidth="5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M325.85 302.254L283.755 373.403L372.24 400.462L397.12 303.736L325.85 302.254Z"
-              fill="white"
-              stroke="white"
-              strokeWidth="5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M7.00415 303.736L31.7607 400.462L120.245 373.403L78.1506 302.254L7.00415 303.736Z"
-              fill="white"
-              stroke="white"
-              strokeWidth="5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M115.279 182.198L88.9607 223.521L176.628 227.671L173.663 134.313L115.279 182.198Z"
-              fill="white"
-              stroke="white"
-              strokeWidth="5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M289.346 182.198L230.369 133.128L228.587 227.671L316.131 223.521L289.346 182.198Z"
-              fill="white"
-              stroke="white"
-              strokeWidth="5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M120.245 373.403L171.291 344.492L126.993 304.33L120.245 373.403Z"
-              fill="white"
-              stroke="white"
-              strokeWidth="5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M233.31 344.492L283.755 373.403L277.629 304.33L233.31 344.492Z"
-              fill="white"
-              stroke="white"
-              strokeWidth="5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          {/* TODO : Add a MetaMask icon */}
         </button>
       )}
     </div>
