@@ -577,7 +577,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.16",
-  "updatedAt": "2025-04-25T17:19:29.072Z",
+  "updatedAt": "2025-04-25T20:12:28.366Z",
   "devdoc": {
     "events": {
       "BatchMetadataUpdate(uint256,uint256)": {

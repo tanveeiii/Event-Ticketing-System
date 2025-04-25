@@ -1,19 +1,21 @@
 import { ethers, JsonRpcProvider } from 'ethers';
 import EventTicketABI from "../../build/contracts/EventTicket.json";
 
-const EVENT_TICKET_ADDRESS = '0x0af4278FB0fac4400771533Ea9664d323607fE75';
-const INFURA_ID = 'd404f2d478314b50b2498dcfa1652902';
+const EVENT_TICKET_ADDRESS = '0xf9A9cfe03fAf9E94a4f5eBB465bb78d3ac04c174';
+// const INFURA_ID = 'd404f2d478314b50b2498dcfa1652902';
 
 // Create a provider and contract instance
-const eventProvider = new JsonRpcProvider(`https://mainnet.infura.io/v3/${INFURA_ID}`);
-const eventContract = new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, eventProvider);
+// const eventProvider = new JsonRpcProvider("http://localhost:7545");
+// const eventContract = new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, eventProvider);
 
 // Connect to wallet and return writeable contract instance
 export const getWriteableContract = async () => {
-    if (!window.ethereum) throw new Error("MetaMask not installed");
-    const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+    if (window.ethereum == null) throw new Error("MetaMask not installed");
+    // const { ethereum } = window
+    const web3Provider = new ethers.BrowserProvider(window.ethereum);
+    console.log(web3Provider)
     await web3Provider.send("eth_requestAccounts", []);
-    const signer = web3Provider.getSigner();
+    const signer = await web3Provider.getSigner();
     return new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, signer);
 };
 
@@ -60,9 +62,7 @@ export const invalidateTicket = async (tokenId) => {
 };
 
 export async function getAvailableEvents() {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const contract = new ethers.Contract(contractAddress, EventTicketABI, provider);
-  
+    const contract = await getWriteableContract()
     const eventCount = await contract.eventIdCounter();
     const currentTime = Math.floor(Date.now() / 1000);
     const availableEvents = [];
@@ -73,7 +73,7 @@ export async function getAvailableEvents() {
         id: i,
         name: eventData.name,
         date: Number(eventData.date),
-        price: Number(eventData.price),
+        price: eventData.price,
         totalTickets: Number(eventData.totalTickets),
         ticketsSold: Number(eventData.ticketsSold),
         organizer: eventData.organizer
