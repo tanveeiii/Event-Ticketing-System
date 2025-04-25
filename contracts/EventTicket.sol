@@ -26,6 +26,8 @@ contract EventTicket is ERC721URIStorage, Ownable {
 
     constructor() ERC721("EventTicket", "ETIX") {}
 
+    event EventCreated(string eventName, uint256 eventDate, uint256 eventPrice, uint256 totalTickets);
+    
     function createEvent(
         string memory name,
         uint date,
@@ -45,6 +47,8 @@ contract EventTicket is ERC721URIStorage, Ownable {
         );
 
         eventIdCounter++;
+
+        emit EventCreated(eventName, eventDate, eventPrice, totalTickets);
     }
 
     function buyTicket(uint eventId, string memory tokenURI) external payable {
