@@ -1,9 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+
 interface IEventTicket {
     function transferFrom(address from, address to, uint256 tokenId) external;
+
     function ownerOf(uint256 tokenId) external view returns (address);
+
     function isTicketValid(uint tokenId) external view returns (bool);
 }
 
@@ -42,7 +47,11 @@ contract TicketMarketplace {
         require(msg.value == item.price, "Incorrect payment");
 
         // Transfer the ticket
-        IEventTicket(eventTicketAddress).transferFrom(item.seller, msg.sender, tokenId);
+        IEventTicket(eventTicketAddress).transferFrom(
+            item.seller,
+            msg.sender,
+            tokenId
+        );
 
         // Pay the seller
         payable(item.seller).transfer(msg.value);
@@ -51,7 +60,9 @@ contract TicketMarketplace {
         delete listings[tokenId];
     }
 
-    function getListing(uint tokenId) external view returns (address seller, uint price) {
+    function getListing(
+        uint tokenId
+    ) external view returns (address seller, uint price) {
         Listing memory item = listings[tokenId];
         return (item.seller, item.price);
     }
