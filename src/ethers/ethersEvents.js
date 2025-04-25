@@ -88,3 +88,41 @@ export async function getAvailableEvents() {
   
     return availableEvents;
   }
+
+  // function to get the user ticket data
+  export const getUserTicketData = async () => {
+    if (!window.ethereum) throw new Error("MetaMask not installed");
+  
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    await provider.send("eth_requestAccounts", []);
+    const signer = provider.getSigner();
+    const userAddress = await signer.getAddress();
+    const owner = await contract.ownerOf(tokenId);
+    const contract = new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, provider);
+    const nextTokenId = await contract.nextTokenId();
+    const tickets = [];
+  
+    for (let tokenId = 0; tokenId < nextTokenId; tokenId++) {
+      try {
+        const owner = await contract.ownerOf(tokenId);
+        if (owner.toLowerCase() === userAddress.toLowerCase()) {
+          const eventId = await contract.ticketToEvent(tokenId);
+          const isValid = await contract.isTicketValid(tokenId);
+          const tokenURI = await contract.tokenURI(tokenId);
+  
+          tickets.push({
+            tokenId,
+            ownerAddress,
+            eventId: Number(eventId),
+            valid: isValid,
+            tokenURI,
+          });
+        }
+      } catch (err) {
+        console.log("Error while geting user ticket data: ", err)
+        continue;
+      }
+    }
+  
+    return tickets;
+  };
