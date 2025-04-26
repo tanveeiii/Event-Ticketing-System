@@ -1,12 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useFetcher } from 'react-router-dom';
 import { Calendar, MapPin, Clock, DollarSign, User, AlertCircle, CheckCircle } from 'lucide-react';
 import { useEventContext } from '../context/EventContext';
+import { getEvent } from '../ethers/ethersEvents';
+import { ethers } from 'ethers';
 
 const EventDetailsPage = () => {
   const { id } = useParams();
   const { events, purchaseTicket, tickets } = useEventContext();
-  const [event, setEvent] = useState(events.find(e => e.id === id));
+  const [event, setEvent] = useState({
+    name:'',
+    date:'',
+    location:'',
+    description:'',
+    imageUrl:'',
+    price:'',
+    ticketsAvailable:'',
+    ticketsSold:'',
+    organizer:'',
+    category:'',
+  });
   const [purchaseStatus, setPurchaseStatus] = useState('idle');
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -24,8 +37,29 @@ const EventDetailsPage = () => {
   };
 
   useEffect(() => {
-    setEvent(events.find(e => e.id === id));
-  }, [id, events]);
+    const fetchEvent = async () => {
+      const eventDetails = await getEvent(id);
+      setEvent({
+        name: eventDetails[0],
+        date: new Date(Number(eventDetails[1]) * 1000).toISOString().split('T')[0], // convert timestamp to date
+        location: eventDetails[2],
+        description: eventDetails[3],
+        imageUrl: eventDetails[4],
+        price: ethers.formatEther(eventDetails[5]), // convert wei to ether
+        ticketsAvailable: Number(eventDetails[6]),
+        ticketsSold: Number(eventDetails[7]),
+        organizer: eventDetails[8],
+        category: eventDetails[9],
+      });
+    };
+  
+    fetchEvent();
+  }, []);
+
+  useEffect(() => {
+    console.log(event)
+  }, [event])
+  
 
   useEffect(() => {
     const handleScroll = () => {
@@ -80,16 +114,16 @@ const EventDetailsPage = () => {
       <div className="relative h-64 md:h-96 w-full">
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10"></div>
         <img
-          src={event.image}
-          alt={event.title}
+          src={event.imageUrl}
+          alt={event.name}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-x-0 bottom-0 container mx-auto px-4 pb-6 z-20">
           <div className="inline-block bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium mb-2">
-            {event.type}
+            {event.category}
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-white">
-            {event.title}
+            {event.name}
           </h1>
         </div>
       </div>
@@ -102,7 +136,7 @@ const EventDetailsPage = () => {
       >
         <div className="container mx-auto px-4 flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-800 truncate">
-            {event.title}
+            {event.name}
           </h2>
           {event.availableTickets > 0 ? (
             <button
@@ -147,7 +181,7 @@ const EventDetailsPage = () => {
                   </div>
                   <div>
                     <h3 className="font-medium text-gray-900">Date</h3>
-                    <p className="text-gray-700">{formatDate(event.date)}</p>
+                    <p className="text-gray-700">{event.date}</p>
                   </div>
                 </div>
 
@@ -191,7 +225,7 @@ const EventDetailsPage = () => {
 
               <div className="flex justify-between items-center mb-4">
                 <span className="text-gray-700">Price:</span>
-                <span className="text-2xl font-bold text-gray-900">${event.price.toFixed(2)}</span>
+                <span className="text-2xl font-bold text-gray-900">{event.price}</span>
               </div>
 
               <div className="flex justify-between items-center mb-6">
@@ -201,7 +235,7 @@ const EventDetailsPage = () => {
                   event.availableTickets > 10 ? 'text-amber-600' : 
                   'text-red-600'
                 } font-medium`}>
-                  {event.availableTickets} tickets
+                  {event.ticketsAvailable} tickets
                 </span>
               </div>
 

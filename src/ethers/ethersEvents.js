@@ -3,7 +3,12 @@ import EventTicketABI from "../../build/contracts/EventTicket.json";
 // import dotenv from 'dotenv';
 // dotenv.config();
 const EVENT_TICKET_ADDRESS = import.meta.env.VITE_EVENT_TICKET_ADDRESS;
-const eventContract = new JsonRpcProvider("http://127.0.0.1:7545")
+const provider = new JsonRpcProvider("http://127.0.0.1:7545")
+const eventContract = new ethers.Contract(
+    EVENT_TICKET_ADDRESS,      
+    EventTicketABI.abi, 
+    provider          
+);
 
 // Connect to wallet and return writeable contract instance
 export const getWriteableContract = async () => {
