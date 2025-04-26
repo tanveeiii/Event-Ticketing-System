@@ -1,17 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import { ethers } from "ethers";
 
-declare global {
-  interface Window {
-    ethereum?: any;
-  }
-}
-
 export default function MetaMaskLogin() {
-  const [address, setAddress] = useState<string>("");
+  const [address, setAddress] = useState("");
   const [loggedIn, setLoggedIn] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef(null);
 
   // Load login state from localStorage on mount
   useEffect(() => {
@@ -25,10 +19,10 @@ export default function MetaMaskLogin() {
 
   // Close dropdown when clicking outside
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event) => {
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        !dropdownRef.current.contains(event.target)
       ) {
         setDropdownOpen(false);
       }
@@ -79,17 +73,17 @@ export default function MetaMaskLogin() {
   };
 
   return (
-    <div className="p-4 flex flex-row justify-center items-center">
+    <div className="p-4 px-2 lg:px-4 flex flex-row justify-center items-center">
       {loggedIn ? (
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={toggleDropdown}
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-purple-600 text-white hover:bg-purple-700 transition-colors duration-200"
+            className="flex items-center justify-center w-8 h-8 lg:w-9 lg:h-9 rounded-full bg-purple-600 text-white hover:bg-purple-700 transition-colors duration-200"
             aria-expanded={dropdownOpen}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
+              className="h-4 w-4 lg:w-5 lg:h-5"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -134,7 +128,6 @@ export default function MetaMaskLogin() {
         >
           <span className="hidden sm:inline mr-2">Login with MetaMask</span>
           <span className="sm:hidden">Connect</span>
-          {/* TODO : Add a MetaMask icon */}
         </button>
       )}
     </div>
