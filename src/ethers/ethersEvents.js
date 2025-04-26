@@ -26,14 +26,15 @@ export const createEvent = async (eventName, eventDate, eventPrice, totalTickets
 
 // Buy Ticket
 export const buyTicket = async (eventId, ticketURI, price) => {
-  const contract = await getWriteableContract()
-  console.log(contract, " ", ticketURI);
-  const tx = await contract.buyTicket(eventId, ticketURI, {
-    value: ethers.parseEther(price)
-  });
-  console.log(tx, " ", price)
-  await tx.wait();
-  return tx;
+    const contract = await getWriteableContract()
+    console.log(contract," ", ticketURI);
+    const tx = await contract.buyTicket(eventId, ticketURI, {
+      value: ethers.parseEther(price)
+    });
+    console.log(tx, " ", price)
+    const receipt = await tx.wait();
+    console.log(receipt)
+    return tx;
 }
 
 // Fetch events
@@ -92,6 +93,30 @@ export const ticketsOfUsers = async (address) => {
 
   console.log(tickets);
   return tickets
+}
+
+export const eventsOfUsers = async(userAddress)=>{
+    const eventIdCounter = await eventContract.eventIdCounter()
+    const events = []
+    for(let i=0;i<eventIdCounter;i++){
+        const eventData = await eventContract.events(i)
+        const eventObj = {
+            id: i,
+            name: eventData.name,
+            date: Number(eventData.date),
+            price: eventData.price,
+            totalTickets: Number(eventData.totalTickets),
+            ticketsSold: Number(eventData.ticketsSold),
+            organizer: eventData.organizer,
+            location: eventData.location,
+            description: eventData.description,
+            imageUrl: eventData.imageUrl,
+            category: eventData.category
+        };
+        if(eventObj.organizer==userAddress){
+            events.push(eventObj)
+        }
+    }
 }
 
 export async function getAvailableEvents() {

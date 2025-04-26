@@ -47,7 +47,7 @@ const EventDetailsPage = () => {
         description: eventDetails[3],
         imageUrl: eventDetails[4],
         price: ethers.formatEther(eventDetails[5]), // convert wei to ether
-        ticketsAvailable: Number(eventDetails[6]),
+        ticketsAvailable: Number(eventDetails[6])-(Number(eventDetails[7])),
         ticketsSold: Number(eventDetails[7]),
         organizer: eventDetails[8],
         category: eventDetails[9],
@@ -109,6 +109,21 @@ const EventDetailsPage = () => {
       const tx = await buyTicket(id, ticketURI, event.price)
       purchaseTicket(event.id);
       setPurchaseStatus('success');
+
+      setEvent({
+        'ticketsAvailable': event.ticketsAvailable-1,
+        'name': event.name,
+        'location': event.location,
+        'category': event.category,
+        'date': event.date,
+        'description': event.description,
+        'imageUrl': event.imageUrl,
+        'price': event.price,
+        'organizer': event.organizer,
+        'ticketsSold': event.ticketsSold+1
+      })
+
+      console.log(events.ticketsSold)
 
       setTimeout(() => {
         setPurchaseStatus('idle');
