@@ -43,7 +43,7 @@ const CreateEventPage = () => {
       createdAt: new Date().toISOString()
     };
 
-    const txData = await createEvent(formData.title, Math.floor(new Date(formData.date).getTime() / 1000), ethers.parseEther(formData.price.toString()), Number(formData.capacity),formData.location, formData.description, formData.imageUrl)
+    const txData = await createEvent(formData.title, Math.floor(new Date(formData.date).getTime() / 1000), ethers.parseEther(formData.price.toString()), Number(formData.capacity),formData.location, formData.description, formData.imageUrl, formData.category)
     console.log(txData)
 
     addEvent(newEvent);

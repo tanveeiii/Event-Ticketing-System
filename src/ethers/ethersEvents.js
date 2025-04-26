@@ -16,9 +16,9 @@ export const getWriteableContract = async () => {
 };
 
 // Create event
-export const createEvent = async (eventName, eventDate, eventPrice, totalTickets, location, description, imageUrl) => {
+export const createEvent = async (eventName, eventDate, eventPrice, totalTickets, location, description, imageUrl, category) => {
     const contract = await getWriteableContract();
-    const tx = await contract.createEvent(eventName, eventDate, eventPrice, totalTickets, location, description, imageUrl);
+    const tx = await contract.createEvent(eventName, eventDate, eventPrice, totalTickets, location, description, imageUrl, category);
     await tx.wait();
     contract.on('EventCreated', (eventName, eventDate, eventPrice, totalTickets) => {
         console.log(`Event created: ${eventName} on ${eventDate} priced at ${eventPrice} with ${totalTickets} tickets`);
@@ -78,7 +78,8 @@ export async function getAvailableEvents() {
         organizer: eventData.organizer,
         location: eventData.location,
         description: eventData.description,
-        imageUrl: eventData.imageUrl
+        imageUrl: eventData.imageUrl,
+        category: eventData.category
       };
 
       if (eventObj.date > currentTime && eventObj.ticketsSold < eventObj.totalTickets) {
