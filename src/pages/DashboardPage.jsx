@@ -1,16 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useEventContext } from "../context/EventContext";
 import TicketCard from "../components/TicketCard";
 import { TicketCheck, ChevronRight, Activity } from "lucide-react";
+import { ticketsOfUsers } from "../ethers/ethersEvents";
 
 const DashboardPage = () => {
   const { tickets, events, currentUser } = useEventContext();
   const [activeTab, setActiveTab] = useState("tickets");
+  const [userTickets, setUserTicket] = useState([])
 
   // Get user's tickets with event information
-  const userTickets = tickets.filter(
-    (ticket) => ticket.userId === currentUser.id
-  );
+  useEffect(() => {
+    const getUserData = async ()=>{
+      const ticket = await ticketsOfUsers(localStorage.getItem("wallet-address"))
+      console.log(userTickets, "hi")
+
+    }
+    getUserData()
+  }, [])
+  
   const ticketsWithEventData = userTickets.map((ticket) => {
     const event = events.find((e) => e.id === ticket.eventId);
     return { ...ticket, event };
