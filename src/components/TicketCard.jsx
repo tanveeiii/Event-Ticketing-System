@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, MapPin, Tag } from "lucide-react";
 import PurchaseTicket from "./PurchaseTicket";
 import formatDate from "../utils/fornatDate";
-import { listTicket } from "../ethers/ethersMarketplace";
+import { listTicket, cancelListing } from "../ethers/ethersMarketplace";
 import { buyResaleTicket } from "../ethers/ethersMarketplace";
+import { ethers } from "ethers";
 
 const TicketCard = ({
   ticket,
@@ -17,11 +18,22 @@ const TicketCard = ({
   const [isHovered, setIsHovered] = useState(false);
   const [showInput, setShowInput] = useState(false);
   const [resalePriceInput, setResalePriceInput] = useState("");
+  const [address, setAddress] = useState("");
+  useEffect(() => {
+    return async () => {
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const address = await signer.getAddress();
+      console.log(address);
+      setAddress(address);
+    };
+  }, []);
 
+  console.log(address);
   console.log(ticket, "tivcke");
 
   const handleListClick = () => {
-    setShowInput(true); // show the input when clicking "List for Resale"
+    setShowInput(true);
   };
 
   const handleConfirmResale = async () => {
@@ -41,6 +53,16 @@ const TicketCard = ({
       navigate("/dashboard");
     } else {
       alert("Please enter a resale price.");
+    }
+  };
+  const handleCancelListing = async (tokenId) => {
+    try {
+      console.log(tokenId, "hi ha token id");
+      await cancelListing(tokenId);
+      alert("Listing cancelled!");
+    } catch (error) {
+      console.error("Error cancelling listing:", error);
+      alert("Failed to cancel listing");
     }
   };
 
@@ -129,29 +151,34 @@ const TicketCard = ({
         )}
 
         {/* Resell Button */}
-        {showResaleOption && !isPast && !ticket?.isListed && !showInput ? (
-          <button
-            onClick={handleListClick}
-            className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 transition-colors"
-          >
-            List for Resale
-          </button>
-        ) : (
-          showResaleOption &&
-          ticket?.isListed && (
-            <div className="w-full bg-purple-50 text-black py-2 rounded-md hover:bg-purple-100 transition-colors text-center">
-              Listed for resale
-            </div>
+        {address === ticket.seller || showResaleOption ? (
+          showResaleOption && !isPast && !ticket?.isListed && !showInput ? (
+            <button
+              onClick={handleListClick}
+              className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 transition-colors"
+            >
+              List for Resale
+            </button>
+          ) : (
+            showResaleOption &&
+            ticket?.isListed && (
+              <button
+                onClick={() => handleCancelListing(ticket.tokenId)}
+                className="w-full bg-red-600 text-white py-2 rounded-md hover:bg-red-700 transition-colors"
+              >
+                Cancel the listing
+              </button>
+            )
           )
-        )}
-
-        {isMarketplace && (
-          <button
-            onClick={handleBuyResale}
-            className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors mt-2 flex items-center justify-center"
-          >
-            <span className="mr-1">Buy Ticket</span>
-          </button>
+        ) : (
+          isMarketplace && (
+            <button
+              onClick={handleBuyResale}
+              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition-colors mt-2 flex items-center justify-center"
+            >
+              <span className="mr-1">Buy Ticket</span>
+            </button>
+          )
         )}
 
         {/* Event date */}

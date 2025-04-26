@@ -121,3 +121,11 @@ export const buyResaleTicket = async (tokenId) => {
   await tx.wait();
   return tx;
 };
+
+export const cancelListing = async (tokenId) => {
+  const contract = await getMarketplaceContract();
+  const tx = await contract.cancelListing(tokenId);
+  console.log(tx);
+  await tx.wait();
+  return tx;
+};
