@@ -98,7 +98,7 @@ const TicketCard = ({
         <div className="space-y-2 mb-4">
           <div className="flex items-center text-gray-600">
             <Calendar className="h-5 w-5 mr-2" />
-            {/* <span>{formatDate(ticket.event.date)}</span> */}
+            <span>{formatDate(ticket.eventDetails.date)}</span>
           </div>
 
           <div className="flex items-center text-gray-600">
