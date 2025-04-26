@@ -117,6 +117,7 @@ export const eventsOfUsers = async(userAddress)=>{
             events.push(eventObj)
         }
     }
+    return events
 }
 
 export async function getAvailableEvents() {
