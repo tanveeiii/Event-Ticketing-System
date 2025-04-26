@@ -3,18 +3,22 @@ import { useEventContext } from "../context/EventContext";
 import TicketCard from "../components/TicketCard";
 import { TicketCheck, ChevronRight, Activity } from "lucide-react";
 import { ticketsOfUsers } from "../ethers/ethersEvents";
+import { ethers } from "ethers";
+import formatDate from "../utils/fornatDate";
 
 const DashboardPage = () => {
   const { tickets, events, currentUser } = useEventContext();
   const [activeTab, setActiveTab] = useState("tickets");
   const [userTickets, setUserTicket] = useState([])
-
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  
   // Get user's tickets with event information
   useEffect(() => {
     const getUserData = async ()=>{
-      const ticket = await ticketsOfUsers(localStorage.getItem("wallet-address"))
-      console.log(userTickets, "hi")
-
+      const signer = await provider.getSigner();
+      const userAddress = await signer.getAddress();
+      const ticket = await ticketsOfUsers(userAddress)
+      setUserTicket(ticket);
     }
     getUserData()
   }, [])
@@ -26,9 +30,11 @@ const DashboardPage = () => {
 
   // Separate tickets by upcoming and past events
   const currentDate = new Date();
-  const upcomingTickets = ticketsWithEventData.filter(
-    (ticket) => ticket.event && new Date(ticket.event.date) >= currentDate
-  );
+  // const upcomingTickets = ticketsWithEventData.filter(
+  //   (ticket) => ticket.event && new Date(ticket.event.date) >= currentDate
+  // );
+  const upcomingTickets = ticketsWithEventData;
+  console.log(upcomingTickets, "ticketWithEvent")
   const pastTickets = ticketsWithEventData.filter(
     (ticket) => ticket.event && new Date(ticket.event.date) < currentDate
   );
@@ -99,7 +105,7 @@ const DashboardPage = () => {
                   <TicketCard
                     key={ticket.id}
                     ticket={ticket}
-                    event={ticket.event}
+                    event={ticket.eventDetails}
                     showResaleOption={true}
                   />
                 ))}
