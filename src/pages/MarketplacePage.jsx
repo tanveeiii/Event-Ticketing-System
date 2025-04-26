@@ -130,6 +130,7 @@ const MarketplacePage = () => {
                 ticket={ticket}
                 event={ticket.event}
                 showResaleOption={false}
+                isDashboard = {false}
               />
             ))}
           </div>

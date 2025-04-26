@@ -50,10 +50,10 @@ export const buyTicket = async (tokenId, priceInWei) => {
 
 // Fetch all listed tickets
 export const getListings = async () => {
-    const contract = await getMarketplaceContract()
-    const tx = await contract.getAllListings()
-    console.log(tx)
-    const [allListings, listedTokenIds] = await contract.getAllListings();
+    // const contract = await getMarketplaceContract()
+    // const tx = await contract.getAllListings()
+    // console.log(tx)
+    const [allListings, listedTokenIds] = await eventContract.getAllListings();
     console.log(allListings, "AL", listedTokenIds)
     const listings = listedTokenIds.map((tokenId, index) => {
         console.log("HALAHI")
@@ -80,4 +80,12 @@ export const isTicketListed = async (tokenId) => {
     console.error("Error checking ticket listing:", error);
     return false; 
   }
+};
+
+export const cancelListing = async (tokenId) => {
+  const contract = await getMarketplaceContract();
+  const tx = await contract.cancelListing(tokenId);
+  console.log(tx)
+  await tx.wait();
+  return tx;
 };
