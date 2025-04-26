@@ -4,6 +4,7 @@ import TicketCard from "../components/TicketCard";
 import { TicketCheck } from "lucide-react";
 import { ticketsOfUsers } from "../ethers/ethersEvents";
 import { ethers } from "ethers";
+import { Activity } from "lucide-react";
 
 const EmptyTicketsMessage = () => (
   <div className="bg-white rounded-lg shadow-sm p-8 text-center">
