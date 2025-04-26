@@ -1,36 +1,83 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useEventContext } from '../context/EventContext';
 import { Search, Filter } from 'lucide-react';
 import TicketCard from '../components/TicketCard';
+import { getListings } from '../ethers/ethersMarketplace';
+import { getEventFromToken } from '../ethers/ethersEvents';
 
 const MarketplacePage = () => {
   const { tickets, events } = useEventContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('');
+  const [resaleTickets, setResaleTickets] = useState([]);
+  const [resaleEvents, setResaleEvents] = useState([]);
+  const [filteredTickets, setFilteredTickets] = useState([]);
 
-  const resaleTickets = tickets
-    .filter(ticket => ticket.forResale)
-    .map(ticket => ({
-      ...ticket,
-      event: events.find(e => e.id === ticket.eventId)
-    }))
-    .filter(ticket => ticket.event);
+  const eventTypes = ["Workshop", "Concert", "Talk", "Exhibition", "Competition"];
 
-  const eventTypes = ['All', ...new Set(resaleTickets.map(ticket => ticket.event?.type).filter(Boolean))];
+  useEffect(() => {
+    const fetchListings = async () => {
+      const data = await getListings();
+      console.log("Tickets Data: ", data);
+      setResaleTickets(data);
+    };
+    fetchListings();
+  }, []);
 
-  const filteredTickets = resaleTickets.filter(ticket => {
-    const matchesSearch =
-      searchTerm === '' ||
-      ticket.event?.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      ticket.event?.location.toLowerCase().includes(searchTerm.toLowerCase());
+  useEffect(() => {
+    const fetchEventDetails = async () => {
+      if (resaleTickets.length === 0) return;
 
-    const matchesType =
-      selectedType === '' ||
-      selectedType === 'All' ||
-      ticket.event?.type === selectedType;
+      const eventPromises = resaleTickets.map(async (ticket) => {
+        const eventData = await getEventFromToken(ticket.tokenId);
+        return eventData;
+      });
+      
+      const events = await Promise.all(eventPromises);
+      console.log("Resale Events: ", events);
+      setResaleEvents(events);
+    };
 
-    return matchesSearch && matchesType;
-  });
+    fetchEventDetails();
+  }, [resaleTickets]);
+
+  useEffect(() => {
+    // Once we have tickets and event details, merge them
+    const mergeTicketsWithEvents = () => {
+      const combined = resaleTickets.map((ticket, index) => ({
+        ...ticket,
+        eventDetails: {
+          name: resaleEvents[index]?.[0] || '',
+          date: resaleEvents[index]?.[1] ? Number(resaleEvents[index][1]) : 0,
+          code: resaleEvents[index]?.[2] || '',
+          organiser: resaleEvents[index]?.[3] || '',
+          imageUrl: resaleEvents[index]?.[4] || '',
+          price: (Number(resaleTickets[index]["price"])).toString(),
+          maxSeats: resaleEvents[index]?.[6] ? resaleEvents[index][6].toString() : '',
+          ticketType: resaleEvents[index]?.[7] ? resaleEvents[index][7].toString() : '',
+          creatorAddress: resaleEvents[index]?.[8] || '',
+          category: resaleEvents[index]?.[9] || '',
+        }
+      }));
+      console.log("Combined: ", combined)
+      return combined;
+    };
+
+    if (resaleTickets.length > 0 && resaleEvents.length > 0) {
+      const merged = mergeTicketsWithEvents();
+      const filtered = merged.filter((ticket) => {
+        console.log(ticket, "ticke")
+        const event = ticket.eventDetails;
+
+        const matchesSearch = event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              event.organiser.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesType = selectedType ? event.category.toLowerCase() === selectedType.toLowerCase() : true;
+        return matchesSearch && matchesType;
+      });
+
+      setFilteredTickets(filtered);
+    }
+  }, [resaleTickets, resaleEvents, searchTerm, selectedType]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -65,7 +112,9 @@ const MarketplacePage = () => {
             >
               <option value="">All Event Types</option>
               {eventTypes.map((type, index) => (
-                type !== 'All' && <option key={index} value={type}>{type}</option>
+                <option key={index} value={type}>
+                  {type}
+                </option>
               ))}
             </select>
           </div>
@@ -74,29 +123,23 @@ const MarketplacePage = () => {
 
       {filteredTickets.length > 0 ? (
         <>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredTickets.map(ticket => (
-            <TicketCard
-              key={ticket.id}
-              ticket={ticket}
-              event={ticket.event}
-              showResaleOption={false}
-            />
-            
-          ))}
-        </div>
-        <div className='p-100'>
-        
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredTickets.map((ticket) => (
+              <TicketCard
+                key={ticket.id}
+                ticket={ticket}
+                event={ticket.event}
+                showResaleOption={false}
+              />
+            ))}
+          </div>
         </>
       ) : (
         <div className="text-center py-16 bg-white rounded-lg shadow-sm">
           <p className="text-xl text-gray-600 mb-4">No resale tickets available at the moment.</p>
           <p className="text-gray-500">Check back later for more tickets!</p>
         </div>
-      )
-      
-      }
+      )}
     </div>
   );
 };
