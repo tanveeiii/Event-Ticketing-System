@@ -56,7 +56,7 @@ const EventDetailsPage = () => {
         location: eventDetails[2],
         description: eventDetails[3],
         imageUrl: eventDetails[4],
-        price: eventDetails[5], // convert wei to ether
+        price: Number(eventDetails[5]), // convert wei to ether
         ticketsAvailable: Number(eventDetails[6]) - Number(eventDetails[7]),
         ticketsSold: Number(eventDetails[7]),
         organizer: eventDetails[8],
@@ -281,7 +281,7 @@ const EventDetailsPage = () => {
               <div className="flex justify-between items-center mb-4">
                 <span className="text-gray-700">Price:</span>
                 <span className="text-2xl font-bold text-gray-900">
-                  {event.price}
+                  {event.price} ETH
                 </span>
               </div>
 
