@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Calendar, MapPin, DollarSign } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -39,7 +39,7 @@ const EventCard = ({ event }) => {
           </div>
           <div className="flex items-center text-gray-700 font-semibold">
             <DollarSign size={16} className="mr-2 text-purple-500" />
-            <span>{Number(event.price)}</span>
+            <span>{Number(event.price)/1e18}</span>
           </div>
           <div className="flex items-center text-gray-600">
             <MapPin size={16} className="mr-2 text-purple-500" />
