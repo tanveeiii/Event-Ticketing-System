@@ -1,84 +1,119 @@
-const EventTicket = artifacts.require("EventTicket");
+const { expect } = require("chai");
+const { ethers } = require("hardhat");
 
-contract("EventTicket", (accounts) => {
-  const organizer = accounts[0];
-  const user1 = accounts[1];
-  const user2 = accounts[2];
+describe("EventTicket", function () {
+  let EventTicket, eventTicket, owner, user, addr1;
 
-  let eventTicketInstance;
-  let eventId;
-
-  beforeEach(async () => {
-    eventTicketInstance = await EventTicket.new({ from: organizer });
-    const now = Math.floor(Date.now() / 1000);
-    await eventTicketInstance.createEvent("Concert", now + 1000, web3.utils.toWei("0.025", "ether"), 2, { from: organizer });
-    eventId = 0;
+  beforeEach(async function () {
+    [owner, user, addr1] = await ethers.getSigners();
+    EventTicket = await ethers.getContractFactory("EventTicket");
+    eventTicket = await EventTicket.deploy();
+    await eventTicket.deployed();
   });
 
-  it("should create an event correctly", async () => {
-    const event = await eventTicketInstance.events(eventId);
-    assert.equal(event.name, "Concert", "Event name should be 'Concert'");
-    assert.equal(event.organizer, organizer, "Organizer address should match");
+  it("should create an event successfully", async function () {
+    await eventTicket.createEvent(
+      "Concert",
+      Date.now() + 100000,
+      ethers.utils.parseEther("1"),
+      100,
+      "NYC",
+      "Awesome concert",
+      "image_url",
+      "Music"
+    );
+
+    const eventDetails = await eventTicket.events(0);
+    expect(eventDetails.name).to.equal("Concert");
+    expect(eventDetails.totalTickets).to.equal(100);
   });
 
-  it("should allow users to buy a ticket", async () => {
-    const tokenURI = "ipfs://example-token-uri";
-    await eventTicketInstance.buyTicket(eventId, tokenURI, {
-      from: user1,
-      value: web3.utils.toWei("0.025", "ether")
+  it("should allow buying a ticket", async function () {
+    await eventTicket.createEvent(
+      "Concert",
+      Date.now() + 100000,
+      ethers.utils.parseEther("1"),
+      100,
+      "NYC",
+      "Awesome concert",
+      "image_url",
+      "Music"
+    );
+
+    await eventTicket.connect(user).buyTicket(0, "token_uri", {
+      value: ethers.utils.parseEther("1"),
     });
 
-    const owner = await eventTicketInstance.ownerOf(0);
-    assert.equal(owner, user1, "Ticket owner should be user1");
+    expect(await eventTicket.ownerOf(0)).to.equal(user.address);
+
+    const eventDetails = await eventTicket.events(0);
+    expect(eventDetails.ticketsSold).to.equal(1);
   });
 
-  it("should fail if buying more tickets than available", async () => {
-    const tokenURI = "ipfs://example-token-uri";
-    await eventTicketInstance.buyTicket(eventId, tokenURI, {
-      from: user1,
-      value: web3.utils.toWei("0.025", "ether")
-    });
-    await eventTicketInstance.buyTicket(eventId, tokenURI, {
-      from: user2,
-      value: web3.utils.toWei("0.025", "ether")
+  it("should allow reselling a ticket", async function () {
+    await eventTicket.createEvent(
+      "Concert",
+      Date.now() + 100000,
+      ethers.utils.parseEther("1"),
+      100,
+      "NYC",
+      "Awesome concert",
+      "image_url",
+      "Music"
+    );
+
+    await eventTicket.connect(user).buyTicket(0, "token_uri", {
+      value: ethers.utils.parseEther("1"),
     });
 
-    try {
-      await eventTicketInstance.buyTicket(eventId, tokenURI, {
-        from: accounts[3],
-        value: web3.utils.toWei("0.025", "ether")
-      });
-      assert.fail("Should not be able to buy more tickets than available");
-    } catch (error) {
-      assert(error.message.includes("Sold out"), "Expected 'Sold out' error");
-    }
+    await eventTicket.connect(user).approve(addr1.address, 0);
+
+    // User resells the ticket to addr1
+    await expect(() =>
+      eventTicket.connect(user).resellTicket(addr1.address, 0, { value: ethers.utils.parseEther("0.5") })
+    ).to.changeEtherBalance(user, ethers.utils.parseEther("0.5"));
+
+    expect(await eventTicket.ownerOf(0)).to.equal(addr1.address);
   });
 
-  it("should allow ticket resale", async () => {
-    const tokenURI = "ipfs://resale-test";
-    await eventTicketInstance.buyTicket(eventId, tokenURI, {
-      from: user1,
-      value: web3.utils.toWei("0.025", "ether")
+  it("should invalidate ticket", async function () {
+    await eventTicket.createEvent(
+      "Concert",
+      Date.now() + 100000,
+      ethers.utils.parseEther("1"),
+      100,
+      "NYC",
+      "Awesome concert",
+      "image_url",
+      "Music"
+    );
+
+    await eventTicket.connect(user).buyTicket(0, "token_uri", {
+      value: ethers.utils.parseEther("1"),
     });
 
-    await eventTicketInstance.resellTicket(user2, 0, { from: user1 });
-
-    const newOwner = await eventTicketInstance.ownerOf(0);
-    assert.equal(newOwner, user2, "New owner should be user2");
+    await eventTicket.invalidateTicket(0);
+    expect(await eventTicket.isTicketValid(0)).to.equal(false);
   });
 
-  it("should prevent resell from non-owners", async () => {
-    const tokenURI = "ipfs://resale-test";
-    await eventTicketInstance.buyTicket(eventId, tokenURI, {
-      from: user1,
-      value: web3.utils.toWei("0.025", "ether")
+  it("should fetch user tickets", async function () {
+    await eventTicket.createEvent(
+      "Concert",
+      Date.now() + 100000,
+      ethers.utils.parseEther("1"),
+      100,
+      "NYC",
+      "Awesome concert",
+      "image_url",
+      "Music"
+    );
+
+    await eventTicket.connect(user).buyTicket(0, "token_uri", {
+      value: ethers.utils.parseEther("1"),
     });
 
-    try {
-      await eventTicketInstance.resellTicket(user2, 0, { from: user2 });
-      assert.fail("Should not allow resale by non-owner");
-    } catch (error) {
-      assert(error.message.includes("Not the ticket owner"), "Expected ownership error");
-    }
+    const tickets = await eventTicket.getTicketsOfUser(user.address);
+    expect(tickets.length).to.equal(1);
+    expect(tickets[0]).to.equal(0);
   });
 });
