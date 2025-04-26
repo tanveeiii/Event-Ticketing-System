@@ -117,7 +117,7 @@ const EventDetailsPage = () => {
 
       const metadataJSON = JSON.stringify(ticketMetadata);
       const ticketURI = `data:application/json;base64,${btoa(metadataJSON)}`;
-      const tx = await buyTicket(id, ticketURI, event.price);
+      const tx = await buyTicket(id, ticketURI, event.price.toString());
       purchaseTicket(event.id);
       setPurchaseStatus("success");
 
