@@ -6,11 +6,11 @@ import { getEventFromToken } from "../ethers/ethersEvents";
 
 // Constants
 const EVENT_TYPES = [
+  "Music",
+  "Sports",
+  "Theater",
+  "Conference",
   "Workshop",
-  "Concert",
-  "Talk",
-  "Exhibition",
-  "Competition",
 ];
 
 const MarketplacePage = () => {
@@ -56,6 +56,7 @@ const MarketplacePage = () => {
     };
 
     fetchEventDetails();
+    setIsLoading(false)
   }, [resaleTickets]);
 
   // Combine and filter tickets with event details
