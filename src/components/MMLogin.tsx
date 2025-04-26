@@ -55,7 +55,6 @@ export default function MetaMaskLogin() {
 
     if (recovered.toLowerCase() === userAddress.toLowerCase()) {
       setLoggedIn(true);
-      console.log("✅ User authenticated:", userAddress);
 
       // Save login state to localStorage
       localStorage.setItem("wallet-address", userAddress);
