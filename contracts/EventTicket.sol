@@ -102,4 +102,28 @@ contract EventTicket is ERC721URIStorage, Ownable {
     function isTicketValid(uint tokenId) external view returns (bool) {
         return ticketValidity[tokenId];
     }
+
+    function getTicketsOfUser(address user) external view returns (uint[] memory) {
+    uint totalTokens = nextTokenId;
+    uint count = 0;
+
+    for (uint i = 0; i < totalTokens; i++) {
+        if (_exists(i) && ownerOf(i) == user) {
+            count++;
+        }
+    }
+
+    uint[] memory ticketIds = new uint[](count);
+    uint index = 0;
+
+    for (uint i = 0; i < totalTokens; i++) {
+        if (_exists(i) && ownerOf(i) == user) {
+            ticketIds[index] = i;
+            index++;
+        }
+    }
+
+    return ticketIds;
+}
+
 }
