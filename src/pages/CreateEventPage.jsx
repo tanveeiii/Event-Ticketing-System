@@ -62,9 +62,12 @@ const CreateEventPage = () => {
       formData.category
     );
     console.log(txData)
-
+    const receipt = await txData.wait()
+    const logs = receipt.logs[0]
+    const eventArgs = logs.args
+    console.log(eventArgs[0])
     addEvent(newEvent);
-    navigate('/events/' + newEvent.id);
+    navigate('/events/' + eventArgs[0]);
   };
 
   return (
