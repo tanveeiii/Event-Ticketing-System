@@ -110,6 +110,21 @@ const EventDetailsPage = () => {
       purchaseTicket(event.id);
       setPurchaseStatus('success');
 
+      setEvent({
+        'ticketsAvailable': event.ticketsAvailable-1,
+        'name': event.name,
+        'location': event.location,
+        'category': event.category,
+        'date': event.date,
+        'description': event.description,
+        'imageUrl': event.imageUrl,
+        'price': event.price,
+        'organizer': event.organizer,
+        'ticketsSold': event.ticketsSold+1
+      })
+
+      console.log(events.ticketsSold)
+
       setTimeout(() => {
         setPurchaseStatus('idle');
       }, 3000);
