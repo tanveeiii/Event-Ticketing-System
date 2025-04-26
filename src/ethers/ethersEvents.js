@@ -156,3 +156,7 @@ export async function getAvailableEvents() {
 
   return availableEvents;
 }
+
+export const getEventFromToken = async(tokenId) => {
+  return await eventContract.getEventFromToken(tokenId);
+}

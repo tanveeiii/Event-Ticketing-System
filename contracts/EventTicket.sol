@@ -42,8 +42,8 @@ contract EventTicket is ERC721URIStorage, Ownable {
     event PaymentTransferred(address organizer, uint amount);
     event Fallback(string calledFallbackFun);
 
-    fallback() external payable{
-        calledFallbackFun="Fallback function is executed!";
+    fallback() external payable {
+        calledFallbackFun = "Fallback function is executed!";
         emit Fallback(calledFallbackFun);
     }
 
@@ -106,7 +106,7 @@ contract EventTicket is ERC721URIStorage, Ownable {
 
         payable(_event.organizer).transfer(msg.value);
 
-        emit PaymentTransferred(_event.organizer, msg.value); 
+        emit PaymentTransferred(_event.organizer, msg.value);
     }
 
     function resellTicket(address to, uint tokenId) external payable {
@@ -154,5 +154,12 @@ contract EventTicket is ERC721URIStorage, Ownable {
         }
 
         return ticketIds;
+    }
+
+    function getEventFromToken(
+        uint256 tokenId
+    ) external view returns (Event memory) {
+        uint eventId = ticketToEvent[tokenId];
+        return events[eventId];
     }
 }

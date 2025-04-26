@@ -20,6 +20,7 @@ contract TicketMarketplace {
     }
 
     address public eventTicketAddress;
+    uint[] public listedTokenIds;
     mapping(uint => Listing) public listings;
 
     constructor(address _eventTicketAddress) {
@@ -34,11 +35,13 @@ contract TicketMarketplace {
         require(price > 0, "Price must be greater than 0");
 
         listings[tokenId] = Listing(msg.sender, price);
+        listedTokenIds.push(tokenId); // <-- add to array
     }
 
     function cancelListing(uint tokenId) external {
         require(listings[tokenId].seller == msg.sender, "Not the seller");
         delete listings[tokenId];
+        _removeTokenId(tokenId); // <-- remove from array
     }
 
     function buyTicket(uint tokenId) external payable {
@@ -46,18 +49,15 @@ contract TicketMarketplace {
         require(item.price > 0, "Ticket not for sale");
         require(msg.value == item.price, "Incorrect payment");
 
-        // Transfer the ticket
         IEventTicket(eventTicketAddress).transferFrom(
             item.seller,
             msg.sender,
             tokenId
         );
-
-        // Pay the seller
         payable(item.seller).transfer(msg.value);
 
-        // Remove listing
         delete listings[tokenId];
+        _removeTokenId(tokenId); // <-- remove from array
     }
 
     function getListing(
@@ -65,5 +65,27 @@ contract TicketMarketplace {
     ) external view returns (address seller, uint price) {
         Listing memory item = listings[tokenId];
         return (item.seller, item.price);
+    }
+
+    function _removeTokenId(uint tokenId) internal {
+        for (uint i = 0; i < listedTokenIds.length; i++) {
+            if (listedTokenIds[i] == tokenId) {
+                listedTokenIds[i] = listedTokenIds[listedTokenIds.length - 1];
+                listedTokenIds.pop();
+                break;
+            }
+        }
+    }
+
+    function getAllListings()
+        external
+        view
+        returns (Listing[] memory, uint[] memory)
+    {
+        Listing[] memory allListings = new Listing[](listedTokenIds.length);
+        for (uint i = 0; i < listedTokenIds.length; i++) {
+            allListings[i] = listings[listedTokenIds[i]];
+        }
+        return (allListings, listedTokenIds);
     }
 }

@@ -50,29 +50,31 @@ const TicketSection = ({
     )}
   </section>
 );
+import { isTicketListed } from "../ethers/ethersMarketplace";
 
 const DashboardPage = () => {
   const { events } = useEventContext();
   const [activeTab, setActiveTab] = useState("tickets");
-  const [userTickets, setUserTickets] = useState([]);
+  const [userTickets, setUserTicket] = useState([]);
+  const provider = new ethers.BrowserProvider(window.ethereum);
 
+  // Get user's tickets with event information
   useEffect(() => {
-    const getUserTickets = async () => {
-      try {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        const userAddress = await signer.getAddress();
-        const tickets = await ticketsOfUsers(userAddress);
-        setUserTickets(tickets);
-      } catch (error) {
-        console.error("Error fetching user tickets:", error);
-      }
-    };
+    const getUserData = async () => {
+      const signer = await provider.getSigner();
+      const userAddress = await signer.getAddress();
+      const ticketList = await ticketsOfUsers(userAddress);
 
-    getUserTickets();
+      const updatedTickets = [];
+      for (const ticket of ticketList) {
+        const listed = await isTicketListed(ticket.tokenId);
+        updatedTickets.push({ ...ticket, isListed: listed });
+      }
+      setUserTicket(updatedTickets);
+    };
+    getUserData();
   }, []);
 
-  // Enhance tickets with event data
   const ticketsWithEventData = userTickets.map((ticket) => {
     const event = events.find((e) => e.id === ticket.eventId);
     return { ...ticket, event };
@@ -80,7 +82,13 @@ const DashboardPage = () => {
 
   // Filter tickets by date
   const currentDate = new Date();
-  const upcomingTickets = ticketsWithEventData;
+  // const upcomingTickets = ticketsWithEventData.filter(
+  //   (ticket) => ticket.event && new Date(ticket.event.date) >= currentDate
+  // );
+  const upcomingTickets = ticketsWithEventData.filter(
+    (ticket) => !ticket.forResale
+  );
+  console.log(upcomingTickets, "ticketWithEvent");
   const pastTickets = ticketsWithEventData.filter(
     (ticket) => ticket.event && new Date(ticket.event.date) < currentDate
   );
@@ -100,6 +108,17 @@ const DashboardPage = () => {
             >
               <TicketCheck size={18} className="mr-2" />
               My Tickets
+            </button>
+            <button
+              onClick={() => setActiveTab("activity")}
+              className={`py-4 px-6 font-medium flex items-center ${
+                activeTab === "activity"
+                  ? "text-purple-600 border-b-2 border-purple-600"
+                  : "text-gray-600 hover:text-purple-600"
+              }`}
+            >
+              <Activity size={18} className="mr-2" />
+              Activity
             </button>
           </nav>
         </div>

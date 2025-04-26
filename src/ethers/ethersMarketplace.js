@@ -50,5 +50,34 @@ export const buyTicket = async (tokenId, priceInWei) => {
 
 // Fetch all listed tickets
 export const getListings = async () => {
-    // TODO: Check solidity file and make changes accordingly
+    const contract = await getMarketplaceContract()
+    const tx = await contract.getAllListings()
+    console.log(tx)
+    const [allListings, listedTokenIds] = await contract.getAllListings();
+    console.log(allListings, "AL", listedTokenIds)
+    const listings = listedTokenIds.map((tokenId, index) => {
+        console.log("HALAHI")
+      console.log("TOkenI: ", tokenId);
+      const listing = allListings[index];
+      return {
+        tokenId: tokenId.toString(),
+        seller: listing.seller,
+        price: listing.price
+      };
+    });
+
+    console.log("LISTING: ", listings);
+    return listings;
 }
+
+export const isTicketListed = async (tokenId) => {
+  const contract = await getMarketplaceContract();
+  try {
+    const listing = await contract.getListing(tokenId);
+    const price = listing[1]; 
+    return price > 0; 
+  } catch (error) {
+    console.error("Error checking ticket listing:", error);
+    return false; 
+  }
+};

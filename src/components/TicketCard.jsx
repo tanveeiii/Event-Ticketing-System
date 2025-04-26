@@ -17,7 +17,7 @@ const TicketCard = ({ ticket, event, showResaleOption = false, isPast = false })
     setShowInput(true); // show the input when clicking "List for Resale"
   };
 
-  const handleConfirmResale = async() => {
+  const handleConfirmResale = async () => {
     if (resalePriceInput) {
       const tx = await listTicket(ticket.tokenId, resalePriceInput);
       console.log(tx, "tx")
@@ -70,7 +70,7 @@ const TicketCard = ({ ticket, event, showResaleOption = false, isPast = false })
             <span>
               {ticket?.forResale
                 ? `Resale Price: ${ticket?.resalePrice ? Number(ticket.resalePrice).toFixed(2) : "0.00"} ETH`
-                : `Original Price: ${ticket?.eventDetails?.price/1e18} ETH`
+                : `Original Price: ${ticket?.eventDetails?.price / 1e18} ETH`
               }
             </span>
           </div>
@@ -85,8 +85,8 @@ const TicketCard = ({ ticket, event, showResaleOption = false, isPast = false })
             ticketId={ticket?.id}
           />
         )}
-{/* Resale Price Input */}
-{showInput && !isPast && (
+        {/* Resale Price Input */}
+        {showInput && !isPast && (
           <div className="mt-4">
             <input
               type="number"
@@ -107,14 +107,18 @@ const TicketCard = ({ ticket, event, showResaleOption = false, isPast = false })
         )}
 
         {/* Resell Button */}
-        {showResaleOption && !isPast && !ticket?.forResale && !showInput && (
+        {showResaleOption && !isPast && !ticket?.isListed && !showInput ? (
           <button
             onClick={handleListClick}
             className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 transition-colors"
           >
             List for Resale
           </button>
-        )}
+        ):( <div
+          className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 transition-colors text-center"
+        >
+          Listed for resale
+        </div>)}
 
         {/* Event ended */}
         {isPast && (
