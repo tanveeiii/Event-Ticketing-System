@@ -148,7 +148,7 @@ export async function getAvailableEvents() {
 
     if (
       eventObj.date > currentTime &&
-      eventObj.ticketsSold < eventObj.totalTickets
+      eventObj.ticketsSold <= eventObj.totalTickets
     ) {
       availableEvents.push(eventObj);
     }
@@ -160,3 +160,15 @@ export async function getAvailableEvents() {
 export const getEventFromToken = async(tokenId) => {
   return await eventContract.getEventFromToken(tokenId);
 }
+
+export const addTickets = async (eventId, additionalTickets) => {
+  const contract = await getWriteableContract();
+
+  try {
+      const tx = await contract.addTickets(eventId, additionalTickets);
+      await tx.wait();
+      console.log("Tickets added successfully");
+  } catch (error) {
+      console.log("Error adding tickets: ", error);
+  }
+};
