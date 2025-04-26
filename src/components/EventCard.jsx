@@ -1,10 +1,10 @@
 import React from "react";
-import { Calendar, MapPin, Clock, DollarSign } from "lucide-react";
+import { Calendar, MapPin, DollarSign } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const EventCard = ({ event }) => {
-  const formatDate = (dateStr) => {
-    const date = new Date(dateStr);
+  const formatDate = (unixTime) => {
+    const date = new Date(unixTime * 1000);
     return new Intl.DateTimeFormat("en-US", {
       month: "long",
       day: "numeric",
@@ -16,17 +16,17 @@ const EventCard = ({ event }) => {
     <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-xl hover:-translate-y-1">
       <div className="h-48 relative overflow-hidden">
         <img
-          src={event.image}
-          alt={event.title}
+          src={`https://source.unsplash.com/random/800x600?event`}
+          alt={event.name}
           className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
         />
         <div className="absolute top-0 right-0 bg-purple-600 text-white px-3 py-1 m-2 rounded-full text-sm font-medium">
-          {event.type}
+          {event.organizer.slice(0, 6)}...{event.organizer.slice(-4)}
         </div>
       </div>
       <div className="p-5">
         <h3 className="text-xl font-bold text-gray-800 mb-2 line-clamp-1">
-          {event.title}
+          {event.name}
         </h3>
 
         <div className="mb-4 space-y-2">
@@ -34,31 +34,27 @@ const EventCard = ({ event }) => {
             <Calendar size={16} className="mr-2 text-purple-500" />
             <span>{formatDate(event.date)}</span>
           </div>
-          <div className="flex items-center text-gray-600">
-            <Clock size={16} className="mr-2 text-purple-500" />
-            <span>{event.time}</span>
+          <div className="flex items-center text-gray-700 font-semibold">
+            <DollarSign size={16} className="mr-2 text-purple-500" />
+            <span>{Number(event.price) / 1e18} ETH</span>
           </div>
           <div className="flex items-center text-gray-600">
             <MapPin size={16} className="mr-2 text-purple-500" />
-            <span className="line-clamp-1">{event.location}</span>
-          </div>
-          <div className="flex items-center text-gray-700 font-semibold">
-            <DollarSign size={16} className="mr-2 text-purple-500" />
-            <span>${event.price.toFixed(2)}</span>
+            <span>Organizer: {event.organizer.slice(0, 6)}...{event.organizer.slice(-4)}</span>
           </div>
         </div>
 
         <div className="flex justify-between items-center mt-5">
           <span
             className={`${
-              event.availableTickets > 50
+              event.totalTickets - event.ticketsSold > 50
                 ? "bg-green-100 text-green-800"
-                : event.availableTickets > 10
+                : event.totalTickets - event.ticketsSold > 10
                 ? "bg-amber-100 text-amber-800"
                 : "bg-red-100 text-red-800"
             } px-3 py-1 rounded-full text-xs font-medium`}
           >
-            {event.availableTickets} tickets left
+            {event.totalTickets - event.ticketsSold} tickets left
           </span>
           <Link
             to={`/events/${event.id}`}
