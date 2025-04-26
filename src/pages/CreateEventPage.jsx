@@ -43,7 +43,24 @@ const CreateEventPage = () => {
       createdAt: new Date().toISOString()
     };
 
-    const txData = await createEvent(formData.title, Math.floor(new Date(formData.date).getTime() / 1000), ethers.parseEther(formData.price.toString()), Number(formData.capacity),formData.location, formData.description, formData.imageUrl, formData.category)
+    // Converting dollars price to eth
+    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+    const data = await response.json();
+    const ethToUsdRate = data.ethereum.usd;
+
+    const priceInEth = (parseFloat(formData.price) / ethToUsdRate).toFixed(18);
+
+    
+    const txData = await createEvent(
+      formData.title,
+      Math.floor(new Date(formData.date).getTime() / 1000),
+      ethers.parseEther(priceInEth),
+      Number(formData.capacity),
+      formData.location,
+      formData.description,
+      formData.imageUrl,
+      formData.category
+    );
     console.log(txData)
 
     addEvent(newEvent);
