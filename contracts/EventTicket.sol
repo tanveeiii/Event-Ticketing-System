@@ -24,6 +24,7 @@ contract EventTicket is ERC721URIStorage, Ownable {
     mapping(uint => Event) public events;
     mapping(uint => uint) public ticketToEvent;
     mapping(uint => bool) public ticketValidity;
+    string public calledFallbackFun;
 
     constructor() ERC721("EventTicket", "ETIX") {}
 
@@ -39,6 +40,12 @@ contract EventTicket is ERC721URIStorage, Ownable {
         string category
     );
     event PaymentTransferred(address organizer, uint amount);
+    event Fallback(string calledFallbackFun);
+
+    fallback() external payable{
+        calledFallbackFun="Fallback function is executed!";
+        emit Fallback(calledFallbackFun);
+    }
 
     function createEvent(
         string memory name,
@@ -97,8 +104,7 @@ contract EventTicket is ERC721URIStorage, Ownable {
         ticketToEvent[tokenId] = eventId;
         ticketValidity[tokenId] = true;
 
-        (bool sent, ) = _event.organizer.call{value: msg.value}("");
-        require(sent, "Failed to send Ether");
+        payable(_event.organizer).transfer(msg.value);
 
         emit PaymentTransferred(_event.organizer, msg.value); 
     }
