@@ -1,64 +1,45 @@
-import { ethers, JsonRpcProvider } from "ethers";
+import { ethers, JsonRpcProvider} from 'ethers';
 import EventTicketABI from "../../build/contracts/EventTicket.json";
 // import dotenv from 'dotenv';
 // dotenv.config();
 const EVENT_TICKET_ADDRESS = import.meta.env.VITE_EVENT_TICKET_ADDRESS;
-const provider = new JsonRpcProvider("http://127.0.0.1:7545");
+const provider = new JsonRpcProvider("http://127.0.0.1:7545")
 const eventContract = new ethers.Contract(
-  EVENT_TICKET_ADDRESS,
-  EventTicketABI.abi,
-  provider
+    EVENT_TICKET_ADDRESS,
+    EventTicketABI.abi,
+    provider
 );
 
 // Connect to wallet and return writeable contract instance
 export const getWriteableContract = async () => {
-  if (window.ethereum == null) throw new Error("MetaMask not installed");
-  const web3Provider = new ethers.BrowserProvider(window.ethereum);
-  console.log(web3Provider);
-  await web3Provider.send("eth_requestAccounts", []);
-  const signer = await web3Provider.getSigner();
-  console.log(signer);
-  return new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, signer);
+    if (window.ethereum == null) throw new Error("MetaMask not installed");
+    const web3Provider = new ethers.BrowserProvider(window.ethereum);
+    console.log(web3Provider)
+    await web3Provider.send("eth_requestAccounts", []);
+    const signer = await web3Provider.getSigner();
+    console.log(signer)
+    return new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, signer);
 };
 
 // Create event
-export const createEvent = async (
-  eventName,
-  eventDate,
-  eventPrice,
-  totalTickets,
-  location,
-  description,
-  imageUrl,
-  category
-) => {
-  const contract = await getWriteableContract();
-  const tx = await contract.createEvent(
-    eventName,
-    eventDate,
-    eventPrice,
-    totalTickets,
-    location,
-    description,
-    imageUrl,
-    category
-  );
-  return tx;
-};
+export const createEvent = async (eventName, eventDate, eventPrice, totalTickets, location, description, imageUrl, category) => {
+    const contract = await getWriteableContract();
+    const tx = await contract.createEvent(eventName, eventDate, eventPrice, totalTickets, location, description, imageUrl, category);
+    return tx;
+}
 
 // Buy Ticket
 export const buyTicket = async (eventId, ticketURI, price) => {
-  const contract = await getWriteableContract();
-  console.log(price);
-  const tx = await contract.buyTicket(eventId, ticketURI, {
-    value: ethers.parseEther(price.toString()),
-  });
-  console.log(tx, " ", price);
-  const receipt = await tx.wait();
-  console.log(receipt);
-  return tx;
-};
-
+    const contract = await getWriteableContract()
+    console.log(contract," ", ticketURI);
+    const tx = await contract.buyTicket(eventId, ticketURI, {
+      value: ethers.parseEther(price)
+    });
+    console.log(tx, " ", price)
+    const receipt = await tx.wait();
+    console.log(receipt)
+    return tx;
+}
 // Fetch events
 export const getEvent = async (eventId) => {
   return await eventContract.events(eventId);
