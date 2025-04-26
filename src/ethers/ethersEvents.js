@@ -1,25 +1,18 @@
 import { ethers, JsonRpcProvider } from 'ethers';
 import EventTicketABI from "../../build/contracts/EventTicket.json";
-
-const EVENT_TICKET_ADDRESS = '0x5D19FC1e4bF4C2Cd4772D50488Eb80ACa5BcF1B9';
-const PROVIDER_URL = "http://192.168.247.110:7545";
-const provider = new ethers.JsonRpcProvider(PROVIDER_URL);
-// const INFURA_ID = 'd404f2d478314b50b2498dcfa1652902';
-
-// Create a provider and contract instance
-// const eventProvider = new JsonRpcProvider("http://localhost:7545");
-// const eventContract = new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, eventProvider);
+import dotenv from 'dotenv';
+dotenv.config();
+const EVENT_TICKET_ADDRESS = process.env.EVENT_TICKET_ADDRESS;
 
 // Connect to wallet and return writeable contract instance
 export const getWriteableContract = async () => {
     if (window.ethereum == null) throw new Error("MetaMask not installed");
-    // const { ethereum } = window
     const web3Provider = new ethers.BrowserProvider(window.ethereum);
     console.log(web3Provider)
     await web3Provider.send("eth_requestAccounts", []);
     const signer = await web3Provider.getSigner();
+    console.log(EVENT_TICKET_ADDRESS)
     return new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, signer);
-    // return contract.connect(signer)
 };
 
 // Create event
