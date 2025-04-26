@@ -23,8 +23,10 @@ export const getMarketplaceContract = async () => {
 
 
 // List tickets
-export const listTicket = async (tokenId, priceInWei) => {
+export const listTicket = async (tokenId, price) => {
     const contract = await getMarketplaceContract();
+    const priceInWei = ethers.parseEther(price)
+    console.log(priceInWei)
     const tx = await contract.listTicket(tokenId, priceInWei);
     await tx.wait();
     return tx;
