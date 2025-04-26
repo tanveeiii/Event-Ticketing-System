@@ -44,16 +44,16 @@ const DashboardPage = () => {
       <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
         <div className="bg-purple-700 p-6 text-white">
           <div className="flex items-center">
-            <img
+            {/* <img
               src={currentUser.avatar}
               alt={currentUser.name}
               className="w-16 h-16 rounded-full border-4 border-white mr-4 object-cover"
-            />
+            /> */}
             <div>
-              <h1 className="text-2xl font-bold">
+              {/* <h1 className="text-2xl font-bold">
                 {currentUser.name}'s Dashboard
-              </h1>
-              <p className="text-purple-200">{currentUser.email}</p>
+              </h1> */}
+              {/* <p className="text-purple-200">{currentUser.email}</p> */}
             </div>
           </div>
         </div>
@@ -71,7 +71,7 @@ const DashboardPage = () => {
               <TicketCheck size={18} className="mr-2" />
               My Tickets
             </button>
-            <button
+            {/* <button
               onClick={() => setActiveTab("activity")}
               className={`py-4 px-6 font-medium flex items-center ${
                 activeTab === "activity"
@@ -81,7 +81,7 @@ const DashboardPage = () => {
             >
               <Activity size={18} className="mr-2" />
               Activity
-            </button>
+            </button> */}
           </nav>
         </div>
       </div>
@@ -153,7 +153,7 @@ const DashboardPage = () => {
         </div>
       )}
 
-      {activeTab === "activity" && (
+      {/* {activeTab === "activity" && (
         <div className="bg-white rounded-lg shadow-sm p-6">
           <h2 className="text-xl font-bold text-gray-800 mb-6">
             Recent Activity
@@ -202,7 +202,7 @@ const DashboardPage = () => {
             </p>
           )}
         </div>
-      )}
+      )} */}
     </div>
   );
 };
