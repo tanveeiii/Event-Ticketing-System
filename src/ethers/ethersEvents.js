@@ -98,6 +98,30 @@ export const ticketsOfUsers = async (address) => {
 
 }
 
+export const eventsOfUsers = async(userAddress)=>{
+    const eventIdCounter = await eventContract.eventIdCounter()
+    const events = []
+    for(let i=0;i<eventIdCounter;i++){
+        const eventData = await eventContract.events(i)
+        const eventObj = {
+            id: i,
+            name: eventData.name,
+            date: Number(eventData.date),
+            price: eventData.price,
+            totalTickets: Number(eventData.totalTickets),
+            ticketsSold: Number(eventData.ticketsSold),
+            organizer: eventData.organizer,
+            location: eventData.location,
+            description: eventData.description,
+            imageUrl: eventData.imageUrl,
+            category: eventData.category
+        };
+        if(eventObj.organizer==userAddress){
+            events.push(eventObj)
+        }
+    }
+}
+
 export async function getAvailableEvents() {
     const contract = await getWriteableContract()
     const eventCount = await contract.eventIdCounter();
