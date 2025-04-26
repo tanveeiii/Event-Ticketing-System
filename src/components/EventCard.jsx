@@ -11,17 +11,18 @@ const EventCard = ({ event }) => {
       year: "numeric",
     }).format(date);
   };
+  console.log(event, "EVNET")
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-xl hover:-translate-y-1">
       <div className="h-48 relative overflow-hidden">
         <img
-          src={`https://source.unsplash.com/random/800x600?event`}
+          src={event.imageUrl}
           alt={event.name}
           className="w-full h-full object-cover transition-transform duration-700 hover:scale-110"
         />
         <div className="absolute top-0 right-0 bg-purple-600 text-white px-3 py-1 m-2 rounded-full text-sm font-medium">
-          {event.organizer.slice(0, 6)}...{event.organizer.slice(-4)}
+          {event.category}
         </div>
       </div>
       <div className="p-5">
@@ -40,7 +41,7 @@ const EventCard = ({ event }) => {
           </div>
           <div className="flex items-center text-gray-600">
             <MapPin size={16} className="mr-2 text-purple-500" />
-            <span>Organizer: {event.organizer.slice(0, 6)}...{event.organizer.slice(-4)}</span>
+            <span>  {event.location}</span>
           </div>
         </div>
 
