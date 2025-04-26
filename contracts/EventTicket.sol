@@ -27,7 +27,17 @@ contract EventTicket is ERC721URIStorage, Ownable {
 
     constructor() ERC721("EventTicket", "ETIX") {}
 
-    event EventCreated(uint eventIdCounter, string eventName, uint256 eventDate, uint256 eventPrice, uint256 totalTickets, string location, string description, string imageUrl, string category);
+    event EventCreated(
+        uint eventIdCounter,
+        string eventName,
+        uint256 eventDate,
+        uint256 eventPrice,
+        uint256 totalTickets,
+        string location,
+        string description,
+        string imageUrl,
+        string category
+    );
 
     function createEvent(
         string memory name,
@@ -56,8 +66,17 @@ contract EventTicket is ERC721URIStorage, Ownable {
         );
 
         eventIdCounter++;
-        emit EventCreated(eventIdCounter-1, name, date, price, totalTickets, location, description, imageUrl, category);
-
+        emit EventCreated(
+            eventIdCounter - 1,
+            name,
+            date,
+            price,
+            totalTickets,
+            location,
+            description,
+            imageUrl,
+            category
+        );
     }
 
     function buyTicket(uint eventId, string memory tokenURI) external payable {
@@ -77,8 +96,8 @@ contract EventTicket is ERC721URIStorage, Ownable {
         ticketToEvent[tokenId] = eventId;
         ticketValidity[tokenId] = true;
 
-        address payable organizer = payable(_event.organizer);
-        organizer.transfer(msg.value);
+        (bool sent, ) = _event.organizer.call{value: msg.value}("");
+        require(sent, "Failed to send Ether");
     }
 
     function resellTicket(address to, uint tokenId) external payable {
@@ -103,27 +122,28 @@ contract EventTicket is ERC721URIStorage, Ownable {
         return ticketValidity[tokenId];
     }
 
-    function getTicketsOfUser(address user) external view returns (uint[] memory) {
-    uint totalTokens = nextTokenId;
-    uint count = 0;
+    function getTicketsOfUser(
+        address user
+    ) external view returns (uint[] memory) {
+        uint totalTokens = nextTokenId;
+        uint count = 0;
 
-    for (uint i = 0; i < totalTokens; i++) {
-        if (_exists(i) && ownerOf(i) == user) {
-            count++;
+        for (uint i = 0; i < totalTokens; i++) {
+            if (_exists(i) && ownerOf(i) == user) {
+                count++;
+            }
         }
-    }
 
-    uint[] memory ticketIds = new uint[](count);
-    uint index = 0;
+        uint[] memory ticketIds = new uint[](count);
+        uint index = 0;
 
-    for (uint i = 0; i < totalTokens; i++) {
-        if (_exists(i) && ownerOf(i) == user) {
-            ticketIds[index] = i;
-            index++;
+        for (uint i = 0; i < totalTokens; i++) {
+            if (_exists(i) && ownerOf(i) == user) {
+                ticketIds[index] = i;
+                index++;
+            }
         }
+
+        return ticketIds;
     }
-
-    return ticketIds;
-}
-
 }
