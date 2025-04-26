@@ -9,12 +9,17 @@ const CreateEventPage = () => {
   const navigate = useNavigate();
   const { addEvent } = useEventContext();
 
-  const [formData, setFormData] = useState({
-    title: "",
-    date: "",
-    price: "",
-    capacity: "",
-  });
+    const [formData, setFormData] = useState({
+      title: '',
+      date: '',
+      time: '',
+      location: '',
+      description: '',
+      price: '',
+      capacity: '',
+      imageUrl: '',
+      category: 'music'
+    });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -38,7 +43,7 @@ const CreateEventPage = () => {
       createdAt: new Date().toISOString()
     };
 
-    const txData = await createEvent(formData.title, Math.floor(new Date(formData.date).getTime() / 1000), ethers.parseEther(formData.price.toString()), Number(formData.capacity))
+    const txData = await createEvent(formData.title, Math.floor(new Date(formData.date).getTime() / 1000), ethers.parseEther(formData.price.toString()), Number(formData.capacity),formData.location, formData.description, formData.imageUrl)
     console.log(txData)
 
     addEvent(newEvent);
