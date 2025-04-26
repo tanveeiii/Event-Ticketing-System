@@ -75,7 +75,10 @@ export async function getAvailableEvents() {
         price: eventData.price,
         totalTickets: Number(eventData.totalTickets),
         ticketsSold: Number(eventData.ticketsSold),
-        organizer: eventData.organizer
+        organizer: eventData.organizer,
+        location: eventData.location,
+        description: eventData.description,
+        imageUrl: eventData.imageUrl
       };
 
       if (eventObj.date > currentTime && eventObj.ticketsSold < eventObj.totalTickets) {
