@@ -18,6 +18,7 @@ contract EventTicket is ERC721URIStorage, Ownable {
         uint totalTickets;
         uint ticketsSold;
         address organizer;
+        string category;
     }
 
     mapping(uint => Event) public events;
@@ -26,7 +27,7 @@ contract EventTicket is ERC721URIStorage, Ownable {
 
     constructor() ERC721("EventTicket", "ETIX") {}
 
-    event EventCreated(string eventName, uint256 eventDate, uint256 eventPrice, uint256 totalTickets, string location, string description, string imageUrl);
+    event EventCreated(string eventName, uint256 eventDate, uint256 eventPrice, uint256 totalTickets, string location, string description, string imageUrl, string category);
 
     function createEvent(
         string memory name,
@@ -35,7 +36,8 @@ contract EventTicket is ERC721URIStorage, Ownable {
         uint totalTickets,
         string memory location,
         string memory description,
-        string memory imageUrl
+        string memory imageUrl,
+        string memory category
     ) external {
         require(date > block.timestamp, "Event must be in the future");
         require(totalTickets > 0, "Tickets must be more than 0");
@@ -49,12 +51,13 @@ contract EventTicket is ERC721URIStorage, Ownable {
             price,
             totalTickets,
             0,
-            msg.sender
+            msg.sender,
+            category
         );
 
         eventIdCounter++;
 
-        emit EventCreated(name, date, price, totalTickets, location, description, imageUrl);
+        emit EventCreated(name, date, price, totalTickets, location, description, imageUrl, category);
     }
 
     function buyTicket(uint eventId, string memory tokenURI) external payable {
