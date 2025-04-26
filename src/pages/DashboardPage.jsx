@@ -14,7 +14,6 @@ const DashboardPage = () => {
     const getUserData = async ()=>{
       const ticket = await ticketsOfUsers(localStorage.getItem("wallet-address"))
       console.log(userTickets, "hi")
-
     }
     getUserData()
   }, [])

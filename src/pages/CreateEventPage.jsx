@@ -44,17 +44,16 @@ const CreateEventPage = () => {
     };
 
     // Converting dollars price to eth
-    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
-    const data = await response.json();
-    const ethToUsdRate = data.ethereum.usd;
+    // const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+    // const data = await response.json();
+    // const ethToUsdRate = data.ethereum.usd;
 
-    const priceInEth = (parseFloat(formData.price) / ethToUsdRate).toFixed(18);
+    // const priceInEth = (parseFloat(formData.price) / ethToUsdRate).toFixed(18);
 
-    
     const txData = await createEvent(
       formData.title,
       Math.floor(new Date(formData.date).getTime() / 1000),
-      ethers.parseEther(priceInEth),
+      formData.price,
       Number(formData.capacity),
       formData.location,
       formData.description,

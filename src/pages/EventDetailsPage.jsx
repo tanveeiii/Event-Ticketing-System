@@ -46,7 +46,7 @@ const EventDetailsPage = () => {
         location: eventDetails[2],
         description: eventDetails[3],
         imageUrl: eventDetails[4],
-        price: ethers.formatEther(eventDetails[5]), // convert wei to ether
+        price: eventDetails[5], // convert wei to ether
         ticketsAvailable: Number(eventDetails[6])-(Number(eventDetails[7])),
         ticketsSold: Number(eventDetails[7]),
         organizer: eventDetails[8],
@@ -167,7 +167,7 @@ const EventDetailsPage = () => {
                 ? "Ticket Purchased"
                 : purchaseStatus === "processing"
                   ? "Processing..."
-                  : `Buy Ticket - ${event.price} ETH`}
+                  : `Buy Ticket - $ ${event.price}`}
             </button>
           ) : (
             <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
