@@ -3,6 +3,7 @@ import EventTicketABI from "../../build/contracts/EventTicket.json";
 // import dotenv from 'dotenv';
 // dotenv.config();
 const EVENT_TICKET_ADDRESS = import.meta.env.VITE_EVENT_TICKET_ADDRESS;
+const eventContract = new JsonRpcProvider("http://127.0.0.1:7545")
 
 // Connect to wallet and return writeable contract instance
 export const getWriteableContract = async () => {
@@ -18,11 +19,7 @@ export const getWriteableContract = async () => {
 // Create event
 export const createEvent = async (eventName, eventDate, eventPrice, totalTickets, location, description, imageUrl, category) => {
     const contract = await getWriteableContract();
-    const tx = await contract.createEvent(eventName, eventDate, eventPrice, totalTickets, location, description, imageUrl, category);
-    await tx.wait();
-    contract.on('EventCreated', (eventName, eventDate, eventPrice, totalTickets) => {
-        console.log(`Event created: ${eventName} on ${eventDate} priced at ${eventPrice} with ${totalTickets} tickets`);
-    });
+    const tx = await contract.createEvent(eventName, eventDate, eventPrice, totalTickets, location, description, imageUrl, category);    
     return tx;
 }
 

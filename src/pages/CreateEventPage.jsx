@@ -45,9 +45,12 @@ const CreateEventPage = () => {
 
     const txData = await createEvent(formData.title, Math.floor(new Date(formData.date).getTime() / 1000), ethers.parseEther(formData.price.toString()), Number(formData.capacity),formData.location, formData.description, formData.imageUrl, formData.category)
     console.log(txData)
-
+    const receipt = await txData.wait()
+    const logs = receipt.logs[0]
+    const eventArgs = logs.args
+    console.log(eventArgs[0])
     addEvent(newEvent);
-    navigate('/events/' + newEvent.id);
+    navigate('/events/' + eventArgs[0]);
   };
 
   return (
