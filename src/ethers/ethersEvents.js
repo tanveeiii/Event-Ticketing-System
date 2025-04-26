@@ -1,128 +1,151 @@
 import { ethers, JsonRpcProvider } from 'ethers';
 import EventTicketABI from "../../build/contracts/EventTicket.json";
-
-const EVENT_TICKET_ADDRESS = '0x3358D6f2643e922C010D9e88d74b8d81b1ca4404';
-const PROVIDER_URL = "http://192.168.247.110:7545";
-const provider = new ethers.JsonRpcProvider(PROVIDER_URL);
-// const INFURA_ID = 'd404f2d478314b50b2498dcfa1652902';
-
-// Create a provider and contract instance
-// const eventProvider = new JsonRpcProvider("http://localhost:7545");
-// const eventContract = new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, eventProvider);
+// import dotenv from 'dotenv';
+// dotenv.config();
+const EVENT_TICKET_ADDRESS = import.meta.env.VITE_EVENT_TICKET_ADDRESS;
+const provider = new JsonRpcProvider("http://127.0.0.1:7545")
+const eventContract = new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi,provider);
 
 // Connect to wallet and return writeable contract instance
 export const getWriteableContract = async () => {
-    if (window.ethereum == null) throw new Error("MetaMask not installed");
-    // const { ethereum } = window
-    const web3Provider = new ethers.BrowserProvider(window.ethereum);
-    console.log(web3Provider)
-    await web3Provider.send("eth_requestAccounts", []);
-    const signer = await web3Provider.getSigner();
-    return new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, provider);
+  if (window.ethereum == null) throw new Error("MetaMask not installed");
+  const web3Provider = new ethers.BrowserProvider(window.ethereum);
+  console.log(web3Provider)
+  await web3Provider.send("eth_requestAccounts", []);
+  const signer = await web3Provider.getSigner();
+  console.log(signer)
+  return new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, signer);
 };
 
 // Create event
-export const createEvent = async (eventName, eventDate, eventPrice, totalTickets) => {
-    const contract = await getWriteableContract();
-    const tx = await contract.createEvent(eventName, eventDate, eventPrice, totalTickets);
-    await tx.wait();
-    return tx;
+export const createEvent = async (eventName, eventDate, eventPrice, totalTickets, location, description, imageUrl, category) => {
+  const contract = await getWriteableContract();
+  const tx = await contract.createEvent(eventName, eventDate, eventPrice, totalTickets, location, description, imageUrl, category);
+  return tx;
 }
 
 // Buy Ticket
-export const buyTicket = async (eventId, ticketURI , priceInWei) => {
-    const contract = await getWriteableContract();
-    const tx = await contract.buyTicket(eventId, ticketURI, { value: priceInWei });
-    await tx.wait();
+export const buyTicket = async (eventId, ticketURI, price) => {
+    const contract = await getWriteableContract()
+    console.log(contract," ", ticketURI);
+    const tx = await contract.buyTicket(eventId, ticketURI, {
+      value: ethers.parseEther(price)
+    });
+    console.log(tx, " ", price)
+    const receipt = await tx.wait();
+    console.log(receipt)
     return tx;
 }
 
 // Fetch events
-export const getEvent = async(eventId) => {
-    return await eventContract.events(eventId);
+export const getEvent = async (eventId) => {
+  return await eventContract.events(eventId);
 }
 
 // Check ticket availability
 export const isTicketAvailable = async (tokenId) => {
-    return await eventContract.isTicketValid(tokenId);
+  return await eventContract.isTicketValid(tokenId);
 }
 
 // Resell ticket
 export const resellTicket = async (buyer, tokenId) => {
-    const contract = await getWriteableContract();
-    const tx = await contract.resellTicket(buyer, tokenId);
-    await tx.wait();
-    return tx;
+  const contract = await getWriteableContract();
+  const tx = await contract.resellTicket(buyer, tokenId);
+  await tx.wait();
+  return tx;
 }
 
 // Invalidate ticket (Owner Only)
 export const invalidateTicket = async (tokenId) => {
-    const contract = await getWriteableContract();
-    const tx = await contract.invalidateTicket(tokenId);
-    await tx.wait();
-    return tx;
+  const contract = await getWriteableContract();
+  const tx = await contract.invalidateTicket(tokenId);
+  await tx.wait();
+  return tx;
 };
 
-export async function getAvailableEvents() {
-    const contract = await getWriteableContract()
-    const eventCount = await contract.eventIdCounter();
-    const currentTime = Math.floor(Date.now() / 1000);
-    const availableEvents = [];
-  
-    for (let i = 0; i < eventCount; i++) {
-      const eventData = await contract.events(i);
-      const eventObj = {
-        id: i,
-        name: eventData.name,
-        date: Number(eventData.date),
-        price: eventData.price,
-        totalTickets: Number(eventData.totalTickets),
-        ticketsSold: Number(eventData.ticketsSold),
-        organizer: eventData.organizer
-      };
+export const ticketsOfUsers = async (address) => {
 
-      if (eventObj.date > currentTime && eventObj.ticketsSold < eventObj.totalTickets) {
-        availableEvents.push(eventObj);
-      }
+  console.log("Adddress of User: ", address)
+  const ticketIds = await eventContract.getTicketsOfUser(address);
+  const tickets = await Promise.all(ticketIds.map(async (tokenId) => {
+    const eventId = await eventContract.ticketToEvent(tokenId);
+    const eventDetails = await eventContract.events(eventId);
+    const tokenURI = await eventContract.tokenURI(tokenId);
+
+    return {
+      tokenId: tokenId.toString(),
+      eventId: eventId.toString(),
+      eventDetails: {
+        name: eventDetails.name,
+        date: eventDetails.date.toString(),
+        location: eventDetails.location,
+        description: eventDetails.description,
+        imageUrl: eventDetails.imageUrl,
+        price: eventDetails.price.toString(),
+        totalTickets: eventDetails.totalTickets.toString(),
+        ticketsSold: eventDetails.ticketsSold.toString(),
+        organizer: eventDetails.organizer,
+        category: eventDetails.category,
+      },
+      tokenURI: tokenURI, // if needed
+    };
+  }));
+
+  console.log(tickets);
+  return tickets
+}
+
+export const eventsOfUsers = async(userAddress)=>{
+    const eventIdCounter = await eventContract.eventIdCounter()
+    const events = []
+    for(let i=0;i<eventIdCounter;i++){
+        const eventData = await eventContract.events(i)
+        const eventObj = {
+            id: i,
+            name: eventData.name,
+            date: Number(eventData.date),
+            price: eventData.price,
+            totalTickets: Number(eventData.totalTickets),
+            ticketsSold: Number(eventData.ticketsSold),
+            organizer: eventData.organizer,
+            location: eventData.location,
+            description: eventData.description,
+            imageUrl: eventData.imageUrl,
+            category: eventData.category
+        };
+        if(eventObj.organizer==userAddress){
+            events.push(eventObj)
+        }
     }
-  
-    return availableEvents;
+    return events
+}
+
+export async function getAvailableEvents() {
+  const contract = await getWriteableContract()
+  const eventCount = await contract.eventIdCounter();
+  const currentTime = Math.floor(Date.now() / 1000);
+  const availableEvents = [];
+
+  for (let i = 0; i < eventCount; i++) {
+    const eventData = await contract.events(i);
+    const eventObj = {
+      id: i,
+      name: eventData.name,
+      date: Number(eventData.date),
+      price: eventData.price,
+      totalTickets: Number(eventData.totalTickets),
+      ticketsSold: Number(eventData.ticketsSold),
+      organizer: eventData.organizer,
+      location: eventData.location,
+      description: eventData.description,
+      imageUrl: eventData.imageUrl,
+      category: eventData.category
+    };
+
+    if (eventObj.date > currentTime && eventObj.ticketsSold < eventObj.totalTickets) {
+      availableEvents.push(eventObj);
+    }
   }
 
-  // function to get the user ticket data
-  export const getUserTicketData = async () => {
-    if (!window.ethereum) throw new Error("MetaMask not installed");
-  
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
-    const userAddress = await signer.getAddress();
-    const owner = await contract.ownerOf(tokenId);
-    const contract = new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, provider);
-    const nextTokenId = await contract.nextTokenId();
-    const tickets = [];
-  
-    for (let tokenId = 0; tokenId < nextTokenId; tokenId++) {
-      try {
-        const owner = await contract.ownerOf(tokenId);
-        if (owner.toLowerCase() === userAddress.toLowerCase()) {
-          const eventId = await contract.ticketToEvent(tokenId);
-          const isValid = await contract.isTicketValid(tokenId);
-          const tokenURI = await contract.tokenURI(tokenId);
-  
-          tickets.push({
-            tokenId,
-            ownerAddress,
-            eventId: Number(eventId),
-            valid: isValid,
-            tokenURI,
-          });
-        }
-      } catch (err) {
-        console.log("Error while geting user ticket data: ", err)
-        continue;
-      }
-    }
-  
-    return tickets;
-  };
+  return availableEvents;
+}

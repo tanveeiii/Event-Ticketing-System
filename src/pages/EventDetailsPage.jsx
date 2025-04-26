@@ -1,12 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useFetcher } from 'react-router-dom';
 import { Calendar, MapPin, Clock, DollarSign, User, AlertCircle, CheckCircle } from 'lucide-react';
 import { useEventContext } from '../context/EventContext';
+import { getEvent } from '../ethers/ethersEvents';
+import { ethers } from 'ethers';
+import { buyTicket } from '../ethers/ethersEvents';
 
 const EventDetailsPage = () => {
   const { id } = useParams();
   const { events, purchaseTicket, tickets } = useEventContext();
-  const [event, setEvent] = useState(events.find(e => e.id === id));
+  const [event, setEvent] = useState({
+    name: '',
+    date: '',
+    location: '',
+    description: '',
+    imageUrl: '',
+    price: '',
+    ticketsAvailable: '',
+    ticketsSold: '',
+    organizer: '',
+    category: '',
+  });
   const [purchaseStatus, setPurchaseStatus] = useState('idle');
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -15,17 +29,38 @@ const EventDetailsPage = () => {
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
-    return new Intl.DateTimeFormat('en-US', { 
+    return new Intl.DateTimeFormat('en-US', {
       weekday: 'long',
-      month: 'long', 
-      day: 'numeric', 
-      year: 'numeric' 
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
     }).format(date);
   };
 
   useEffect(() => {
-    setEvent(events.find(e => e.id === id));
-  }, [id, events]);
+    const fetchEvent = async () => {
+      const eventDetails = await getEvent(id);
+      setEvent({
+        name: eventDetails[0],
+        date: new Date(Number(eventDetails[1]) * 1000).toISOString().split('T')[0], // convert timestamp to date
+        location: eventDetails[2],
+        description: eventDetails[3],
+        imageUrl: eventDetails[4],
+        price: ethers.formatEther(eventDetails[5]), // convert wei to ether
+        ticketsAvailable: Number(eventDetails[6])-(Number(eventDetails[7])),
+        ticketsSold: Number(eventDetails[7]),
+        organizer: eventDetails[8],
+        category: eventDetails[9],
+      });
+    };
+
+    fetchEvent();
+  }, []);
+
+  useEffect(() => {
+    console.log(event)
+  }, [event])
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -55,19 +90,48 @@ const EventDetailsPage = () => {
     );
   }
 
-  const handlePurchaseTicket = () => {
+  const handlePurchaseTicket = async() => {
     try {
+      setPurchaseStatus('processing');
+
+      const ticketMetadata = {
+        name: event.name + " Ticket",
+        description: "Entry ticket for " + event.name,
+        image: event.imageUrl,
+        attributes: [
+          { trait_type: "Date", value: event.date },
+          { trait_type: "Location", value: event.location }
+        ]
+      };
+
+      const metadataJSON = JSON.stringify(ticketMetadata);
+      const ticketURI = `data:application/json;base64,${btoa(metadataJSON)}`;
+      const tx = await buyTicket(id, ticketURI, event.price)
       purchaseTicket(event.id);
       setPurchaseStatus('success');
 
-      // Reset status after 3 seconds
+      setEvent({
+        'ticketsAvailable': event.ticketsAvailable-1,
+        'name': event.name,
+        'location': event.location,
+        'category': event.category,
+        'date': event.date,
+        'description': event.description,
+        'imageUrl': event.imageUrl,
+        'price': event.price,
+        'organizer': event.organizer,
+        'ticketsSold': event.ticketsSold+1
+      })
+
+      console.log(events.ticketsSold)
+
       setTimeout(() => {
         setPurchaseStatus('idle');
       }, 3000);
     } catch (error) {
+      console.log("Error while purchasing: ", error)
       setPurchaseStatus('error');
 
-      // Reset status after 3 seconds
       setTimeout(() => {
         setPurchaseStatus('idle');
       }, 3000);
@@ -80,47 +144,45 @@ const EventDetailsPage = () => {
       <div className="relative h-64 md:h-96 w-full">
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent z-10"></div>
         <img
-          src={event.image}
-          alt={event.title}
+          src={event.imageUrl}
+          alt={event.name}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-x-0 bottom-0 container mx-auto px-4 pb-6 z-20">
           <div className="inline-block bg-purple-600 text-white px-3 py-1 rounded-full text-sm font-medium mb-2">
-            {event.type}
+            {event.category}
           </div>
           <h1 className="text-3xl md:text-4xl font-bold text-white">
-            {event.title}
+            {event.name}
           </h1>
         </div>
       </div>
 
       {/* Sticky Purchase Bar */}
       <div
-        className={`sticky top-16 z-20 w-full bg-white shadow-md transition-all duration-300 ${
-          isScrolled ? "py-3" : "py-0 opacity-0 pointer-events-none"
-        }`}
+        className={`sticky top-16 z-20 w-full bg-white shadow-md transition-all duration-300 ${isScrolled ? "py-3" : "py-0 opacity-0 pointer-events-none"
+          }`}
       >
         <div className="container mx-auto px-4 flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-800 truncate">
-            {event.title}
+            {event.name}
           </h2>
-          {event.availableTickets > 0 ? (
+          {event.ticketsAvailable > 0 ? (
             <button
               onClick={handlePurchaseTicket}
               disabled={hasTicket || purchaseStatus !== "idle"}
-              className={`px-4 py-2 rounded-md text-white font-medium ${
-                hasTicket
+              className={`px-4 py-2 rounded-md text-white font-medium ${hasTicket
                   ? "bg-green-500 cursor-default"
                   : purchaseStatus === "processing"
-                  ? "bg-purple-400 cursor-wait"
-                  : "bg-purple-600 hover:bg-purple-700 transition-colors"
-              }`}
+                    ? "bg-purple-400 cursor-wait"
+                    : "bg-purple-600 hover:bg-purple-700 transition-colors"
+                }`}
             >
               {hasTicket
                 ? "Ticket Purchased"
                 : purchaseStatus === "processing"
-                ? "Processing..."
-                : `Buy Ticket - ${event.price} ETH`}
+                  ? "Processing..."
+                  : `Buy Ticket - ${event.price} ETH`}
             </button>
           ) : (
             <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
@@ -147,7 +209,7 @@ const EventDetailsPage = () => {
                   </div>
                   <div>
                     <h3 className="font-medium text-gray-900">Date</h3>
-                    <p className="text-gray-700">{formatDate(event.date)}</p>
+                    <p className="text-gray-700">{event.date}</p>
                   </div>
                 </div>
 
@@ -191,17 +253,16 @@ const EventDetailsPage = () => {
 
               <div className="flex justify-between items-center mb-4">
                 <span className="text-gray-700">Price:</span>
-                <span className="text-2xl font-bold text-gray-900">${event.price.toFixed(2)}</span>
+                <span className="text-2xl font-bold text-gray-900">{event.price}</span>
               </div>
 
               <div className="flex justify-between items-center mb-6">
                 <span className="text-gray-700">Available:</span>
-                <span className={`${
-                  event.availableTickets > 50 ? 'text-green-600' : 
-                  event.availableTickets > 10 ? 'text-amber-600' : 
-                  'text-red-600'
-                } font-medium`}>
-                  {event.availableTickets} tickets
+                <span className={`${event.ticketsAvailable > 50 ? 'text-green-600' :
+                    event.ticketsAvailable > 10 ? 'text-amber-600' :
+                      'text-red-600'
+                  } font-medium`}>
+                  {event.ticketsAvailable} tickets
                 </span>
               </div>
 
@@ -226,12 +287,12 @@ const EventDetailsPage = () => {
                     You already have a ticket for this event!
                   </div>
                   <button
-                  onClick={handlePurchaseTicket}
-                  disabled={purchaseStatus !== 'idle'}
-                  className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 rounded-md transition-colors"
-                >
-                  Buy Another Ticket
-                </button>
+                    onClick={handlePurchaseTicket}
+                    disabled={purchaseStatus !== 'idle'}
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 rounded-md transition-colors"
+                  >
+                    Buy Another Ticket
+                  </button>
                   <Link
                     to="/dashboard"
                     className="mt-4 block text-center bg-gray-100 text-gray-700 font-medium py-2 rounded-md hover:bg-gray-200 transition-colors"
@@ -239,7 +300,7 @@ const EventDetailsPage = () => {
                     View My Tickets
                   </Link>
                 </div>
-              ) : event.availableTickets > 0 ? (
+              ) : event.ticketsAvailable > 0 ? (
                 <button
                   onClick={handlePurchaseTicket}
                   disabled={purchaseStatus !== 'idle'}
@@ -253,7 +314,7 @@ const EventDetailsPage = () => {
                 </div>
               )}
 
-              {!hasTicket && event.availableTickets > 0 && (
+              {!hasTicket && event.ticketsAvailable > 0 && (
                 <p className="text-sm text-gray-500 mt-3 text-center">
                   Secure your spot now before tickets run out!
                 </p>

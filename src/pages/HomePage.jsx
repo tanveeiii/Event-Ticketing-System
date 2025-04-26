@@ -6,15 +6,16 @@ import EventCard from '../components/EventCard';
 import { getAvailableEvents } from '../ethers/ethersEvents';
 
 const HomePage = () => {
-  const [eventss, setEvents] = useState();
+  const [eventsAdded, setEvents] = useState([]);
   const { events } = useEventContext();
   
-  const featuredEvents = events.slice(0, 3);
   useEffect(() => {
     return async() => {
       const data = await getAvailableEvents();
+      const featuredData = data.slice(0,3)
       console.log("HELL")
       console.log(data);
+      setEvents(featuredData);
     }
   }, [])
   
@@ -99,7 +100,7 @@ const HomePage = () => {
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {featuredEvents.map(event => (
+          {eventsAdded.map(event => (
             <EventCard key={event.id} event={event} />
           ))}
         </div>

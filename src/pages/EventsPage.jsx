@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useEventContext } from '../context/EventContext';
 import EventCard from '../components/EventCard';
 import { Search, Filter } from 'lucide-react';
+import { getAvailableEvents } from '../ethers/ethersEvents';
 
 const EventsPage = () => {
+  const [eventsAdded, setEvents] = useState([]);
   const { events } = useEventContext();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('');
@@ -11,6 +13,14 @@ const EventsPage = () => {
   // Get unique event types
   const eventTypes = ['All', ...new Set(events.map(event => event.type))];
   
+  useEffect(() => {
+      return async() => {
+        const data = await getAvailableEvents();
+        console.log("HELL")
+        console.log(data);
+        setEvents(data);
+      }
+    }, [])
   // Filter events based on search and type
   const filteredEvents = events.filter(event => {
     const matchesSearch = searchTerm === '' || 
@@ -62,9 +72,9 @@ const EventsPage = () => {
       </div>
       
       {/* Event Grid */}
-      {filteredEvents.length > 0 ? (
+      {eventsAdded.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredEvents.map(event => (
+          {eventsAdded.map(event => (
             <EventCard key={event.id} event={event} />
           ))}
         </div>
