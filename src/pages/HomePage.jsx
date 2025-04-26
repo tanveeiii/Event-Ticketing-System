@@ -9,13 +9,13 @@ const HomePage = () => {
   const [eventsAdded, setEvents] = useState([]);
   const { events } = useEventContext();
   
-  const featuredEvents = events.slice(0, 3);
   useEffect(() => {
     return async() => {
       const data = await getAvailableEvents();
+      const featuredData = data.slice(0,3)
       console.log("HELL")
       console.log(data);
-      setEvents(data);
+      setEvents(featuredData);
     }
   }, [])
   
