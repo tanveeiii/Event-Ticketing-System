@@ -1,45 +1,80 @@
 import React, { useState, useEffect } from "react";
-import { useEventContext } from "../context/EventContext";
 import { Search, Filter, Ticket } from "lucide-react";
-import { eventsOfUsers } from "../ethers/ethersEvents";
+import { eventsOfUsers, addTickets } from "../ethers/ethersEvents";
+import formatDate from "../utils/fornatDate";
+import AddTicketsModal from "../components/AddTicketsModal";
 
 const CreatedEvents = () => {
   const [createdEvents, setCreatedEvents] = useState([]);
-  const { events } = useEventContext();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
-  // Get unique event types
-  const eventTypes = ["All", ...new Set(events.map((event) => event.type))];
+  const eventTypes = createdEvents.length > 0 
+    ? ["All", ...new Set(createdEvents.map((event) => event.category))]
+    : ["All"];
 
-  // Function to get all created events (to be filled later)
   const getCreatedEvents = async () => {
-    const storedAddress = localStorage.getItem("wallet-address");
+    const storedAddress = localStorage.getItem("wallet-address") || "0x123";
     const data = await eventsOfUsers(storedAddress);
     console.log("Created Events: ", data);
     return data;
   };
 
+  const handleAddTickets = async (eventId, ticketCount) => {
+    try {
+      await addTickets(eventId, ticketCount);
+      
+      setCreatedEvents(prevEvents => 
+        prevEvents.map(event => 
+          event.id === eventId 
+            ? { 
+                ...event, 
+                totalTickets: Number(event.totalTickets) + ticketCount 
+              } 
+            : event
+        )
+      );
+      
+    } catch (error) {
+      console.error("Failed to add tickets:", error);
+      throw error;
+    }
+  };
+
+  const openAddTicketsModal = (event) => {
+    setSelectedEvent(event);
+    setIsModalOpen(true);
+  };
+
   useEffect(() => {
     const fetchEvents = async () => {
-      const userEvents = await getCreatedEvents();
-      setCreatedEvents(userEvents);
+      setLoading(true);
+      try {
+        const userEvents = await getCreatedEvents();
+        setCreatedEvents(userEvents);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchEvents();
   }, []);
 
-  // Filter events based on search and type
   const filteredEvents = createdEvents.filter((event) => {
     const matchesSearch =
       searchTerm === "" ||
-      event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      event.location.toLowerCase().includes(searchTerm.toLowerCase());
+      event.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      event.location?.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesType =
       selectedType === "" ||
       selectedType === "All" ||
-      event.type === selectedType;
+      event.category === selectedType;
 
     return matchesSearch && matchesType;
   });
@@ -50,7 +85,6 @@ const CreatedEvents = () => {
         My Created Events
       </h1>
 
-      {/* Search and Filter */}
       <div className="bg-white p-4 rounded-lg shadow-sm mb-8">
         <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
@@ -89,45 +123,50 @@ const CreatedEvents = () => {
         </div>
       </div>
 
-      {/* Event Table */}
-      {filteredEvents.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white rounded-lg overflow-hidden shadow-md">
+      {loading && (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-700"></div>
+        </div>
+      )}
+
+      {!loading && filteredEvents.length > 0 ? (
+        <div className="overflow-x-auto bg-white rounded-lg shadow-md">
+          <table className="min-w-full">
             <thead className="bg-gray-100">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Event
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs text-center font-medium text-gray-500 uppercase tracking-wider">
                   Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs text-center font-medium text-gray-500 uppercase tracking-wider">
                   Location
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs text-center font-medium text-gray-500 uppercase tracking-wider">
                   Type
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs text-center font-medium text-gray-500 uppercase tracking-wider">
                   Tickets Sold
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Revenue
+                <th className="px-6 py-3 text-xs text-center font-medium text-gray-500 uppercase tracking-wider">
+                  Revenue (ETH)
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-6 py-3 text-xs text-center font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredEvents.map((event) => (
-                <tr key={event.id} className="hover:bg-gray-50">
+                <tr key={event.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="h-10 w-10 flex-shrink-0 mr-3">
                         <img
                           className="h-10 w-10 rounded-full object-cover"
                           src={event.imageUrl || "/placeholder.png"}
-                          alt={event.title}
+                          alt={event.name}
                         />
                       </div>
                       <div className="text-sm font-medium text-gray-900">
@@ -135,32 +174,32 @@ const CreatedEvents = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(event.date).toLocaleDateString()}
+                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
+                    {formatDate(event.date)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
                     {event.location}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
+                  <td className="px-6 py-4 whitespace-nowrap text-center">
+                    <span className="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">
                       {event.category}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    <div className="flex items-center">
-                      <Ticket size={16} className="text-gray-400 mr-2" />
+                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
+                    <div className="flex items-center justify-center">
+                      <Ticket size={16} className="text-gray-400 mr-2 relative top-[1px]" />
                       {event.ticketsSold} / {event.totalTickets}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {Number(event.ticketsSold) * Number(event.price)} ETH
+                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500">
+                    {(Number(event.ticketsSold) * Number(event.price))/1e18}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button className="text-indigo-600 hover:text-indigo-900 mr-3">
-                      Edit
-                    </button>
-                    <button className="text-red-600 hover:text-red-900">
-                      Cancel
+                  <td className="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                    <button 
+                      className="text-indigo-600 hover:text-indigo-900 transition-colors focus:outline-none focus:underline"
+                      onClick={() => openAddTicketsModal(event)}
+                    >
+                      Add Tickets
                     </button>
                   </td>
                 </tr>
@@ -168,15 +207,24 @@ const CreatedEvents = () => {
             </tbody>
           </table>
         </div>
-      ) : (
+      ) : !loading ? (
         <div className="text-center py-16 bg-white rounded-lg shadow-sm">
           <p className="text-xl text-gray-600">
             You haven't created any events yet or no events match your search.
           </p>
-          <button className="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+          <button className="mt-4 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-colors">
             Create Your First Event
           </button>
         </div>
+      ) : null}
+
+      {selectedEvent && (
+        <AddTicketsModal
+          event={selectedEvent}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onAddTickets={handleAddTickets}
+        />
       )}
     </div>
   );

@@ -162,4 +162,9 @@ contract EventTicket is ERC721URIStorage, Ownable {
         uint eventId = ticketToEvent[tokenId];
         return events[eventId];
     }
+
+    function addTickets(uint eventId, uint additionalTickets) external {
+        require(additionalTickets > 0, "You must add at least 1 ticket");
+        events[eventId].totalTickets += additionalTickets;
+    }
 }
