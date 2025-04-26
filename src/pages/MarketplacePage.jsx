@@ -6,11 +6,11 @@ import { getEventFromToken } from "../ethers/ethersEvents";
 
 // Constants
 const EVENT_TYPES = [
+  "Music",
+  "Sports",
+  "Theater",
+  "Conference",
   "Workshop",
-  "Concert",
-  "Talk",
-  "Exhibition",
-  "Competition",
 ];
 
 const MarketplacePage = () => {
