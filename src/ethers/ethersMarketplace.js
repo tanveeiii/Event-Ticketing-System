@@ -69,3 +69,15 @@ export const getListings = async () => {
     console.log("LISTING: ", listings);
     return listings;
 }
+
+export const isTicketListed = async (tokenId) => {
+  const contract = await getMarketplaceContract();
+  try {
+    const listing = await contract.getListing(tokenId);
+    const price = listing[1]; 
+    return price > 0; 
+  } catch (error) {
+    console.error("Error checking ticket listing:", error);
+    return false; 
+  }
+};

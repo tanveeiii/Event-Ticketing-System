@@ -5,24 +5,31 @@ import { TicketCheck, ChevronRight, Activity } from "lucide-react";
 import { ticketsOfUsers } from "../ethers/ethersEvents";
 import { ethers } from "ethers";
 import formatDate from "../utils/fornatDate";
+import { isTicketListed } from "../ethers/ethersMarketplace";
 
 const DashboardPage = () => {
   const { tickets, events, currentUser } = useEventContext();
   const [activeTab, setActiveTab] = useState("tickets");
   const [userTickets, setUserTicket] = useState([])
   const provider = new ethers.BrowserProvider(window.ethereum);
-  
+
   // Get user's tickets with event information
   useEffect(() => {
-    const getUserData = async ()=>{
+    const getUserData = async () => {
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
-      const ticket = await ticketsOfUsers(userAddress)
-      setUserTicket(ticket);
+      const ticketList = await ticketsOfUsers(userAddress);
+
+      const updatedTickets = [];
+      for (const ticket of ticketList) {
+        const listed = await isTicketListed(ticket.tokenId);
+        updatedTickets.push({ ...ticket, isListed: listed });
+      }
+      setUserTicket(updatedTickets);
     }
     getUserData()
   }, [])
-  
+
   const ticketsWithEventData = userTickets.map((ticket) => {
     const event = events.find((e) => e.id === ticket.eventId);
     return { ...ticket, event };
@@ -33,7 +40,9 @@ const DashboardPage = () => {
   // const upcomingTickets = ticketsWithEventData.filter(
   //   (ticket) => ticket.event && new Date(ticket.event.date) >= currentDate
   // );
-  const upcomingTickets = ticketsWithEventData;
+  const upcomingTickets = ticketsWithEventData.filter(
+    (ticket) => !ticket.forResale
+  );
   console.log(upcomingTickets, "ticketWithEvent")
   const pastTickets = ticketsWithEventData.filter(
     (ticket) => ticket.event && new Date(ticket.event.date) < currentDate
@@ -62,22 +71,20 @@ const DashboardPage = () => {
           <nav className="flex">
             <button
               onClick={() => setActiveTab("tickets")}
-              className={`py-4 px-6 font-medium flex items-center ${
-                activeTab === "tickets"
+              className={`py-4 px-6 font-medium flex items-center ${activeTab === "tickets"
                   ? "text-purple-600 border-b-2 border-purple-600"
                   : "text-gray-600 hover:text-purple-600"
-              }`}
+                }`}
             >
               <TicketCheck size={18} className="mr-2" />
               My Tickets
             </button>
             <button
               onClick={() => setActiveTab("activity")}
-              className={`py-4 px-6 font-medium flex items-center ${
-                activeTab === "activity"
+              className={`py-4 px-6 font-medium flex items-center ${activeTab === "activity"
                   ? "text-purple-600 border-b-2 border-purple-600"
                   : "text-gray-600 hover:text-purple-600"
-              }`}
+                }`}
             >
               <Activity size={18} className="mr-2" />
               Activity
