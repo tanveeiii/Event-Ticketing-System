@@ -47,7 +47,7 @@ const EventDetailsPage = () => {
         description: eventDetails[3],
         imageUrl: eventDetails[4],
         price: ethers.formatEther(eventDetails[5]), // convert wei to ether
-        ticketsAvailable: Number(eventDetails[6]),
+        ticketsAvailable: Number(eventDetails[6])-(Number(eventDetails[7])),
         ticketsSold: Number(eventDetails[7]),
         organizer: eventDetails[8],
         category: eventDetails[9],

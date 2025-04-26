@@ -36,7 +36,8 @@ export const buyTicket = async (eventId, ticketURI, price) => {
       value: ethers.parseEther(price)
     });
     console.log(tx, " ", price)
-    await tx.wait();
+    const receipt = await tx.wait();
+    console.log(receipt)
     return tx;
 }
 

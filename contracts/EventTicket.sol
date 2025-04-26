@@ -38,6 +38,7 @@ contract EventTicket is ERC721URIStorage, Ownable {
         string imageUrl,
         string category
     );
+    event PaymentTransferred(address organizer, uint amount);
 
     function createEvent(
         string memory name,
@@ -98,6 +99,8 @@ contract EventTicket is ERC721URIStorage, Ownable {
 
         (bool sent, ) = _event.organizer.call{value: msg.value}("");
         require(sent, "Failed to send Ether");
+
+        emit PaymentTransferred(_event.organizer, msg.value); 
     }
 
     function resellTicket(address to, uint tokenId) external payable {
