@@ -196,7 +196,7 @@ const CreateEventPage = () => {
             >
               <div className="flex items-center">
                 <DollarSign className="h-5 w-5 mr-2" />
-                <span>Ticket Price ($)</span>
+                <span>Ticket Price (ETH)</span>
               </div>
             </label>
             <input
