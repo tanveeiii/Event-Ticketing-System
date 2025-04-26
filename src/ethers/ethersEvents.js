@@ -1,8 +1,8 @@
 import { ethers, JsonRpcProvider } from 'ethers';
 import EventTicketABI from "../../build/contracts/EventTicket.json";
-import dotenv from 'dotenv';
-dotenv.config();
-const EVENT_TICKET_ADDRESS = process.env.EVENT_TICKET_ADDRESS;
+// import dotenv from 'dotenv';
+// dotenv.config();
+const EVENT_TICKET_ADDRESS = import.meta.env.VITE_EVENT_TICKET_ADDRESS;
 
 // Connect to wallet and return writeable contract instance
 export const getWriteableContract = async () => {
