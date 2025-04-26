@@ -56,6 +56,7 @@ const MarketplacePage = () => {
     };
 
     fetchEventDetails();
+    setIsLoading(false)
   }, [resaleTickets]);
 
   // Combine and filter tickets with event details
