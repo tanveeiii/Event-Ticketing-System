@@ -1,40 +1,95 @@
 import React, { useState, useEffect } from "react";
 import { useEventContext } from "../context/EventContext";
 import TicketCard from "../components/TicketCard";
-import { TicketCheck, ChevronRight, Activity } from "lucide-react";
+import { TicketCheck } from "lucide-react";
 import { ticketsOfUsers } from "../ethers/ethersEvents";
 import { ethers } from "ethers";
-import formatDate from "../utils/fornatDate";
+import { Activity } from "lucide-react";
+
+const EmptyTicketsMessage = () => (
+  <div className="bg-white rounded-lg shadow-sm p-8 text-center">
+    <p className="text-gray-600 mb-4">You don't have any upcoming events.</p>
+    <a
+      href="/events"
+      className="inline-block bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700 transition-colors"
+    >
+      Browse Events
+    </a>
+  </div>
+);
+
+const TicketSection = ({
+  title,
+  tickets,
+  isPast = false,
+  badgeColor = "purple",
+}) => (
+  <section className="mb-10">
+    <div className="flex items-center justify-between mb-6">
+      <h2 className="text-2xl font-bold text-gray-800">{title}</h2>
+      <span
+        className={`bg-${badgeColor}-100 text-${badgeColor}-800 px-3 py-1 rounded-full text-sm font-medium`}
+      >
+        {tickets.length} Tickets
+      </span>
+    </div>
+
+    {tickets.length > 0 ? (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {tickets.map((ticket) => (
+          <TicketCard
+            key={ticket.id}
+            ticket={ticket}
+            event={ticket.eventDetails}
+            showResaleOption={!isPast}
+            isPast={isPast}
+          />
+        ))}
+      </div>
+    ) : (
+      <EmptyTicketsMessage />
+    )}
+  </section>
+);
+import { isTicketListed } from "../ethers/ethersMarketplace";
 
 const DashboardPage = () => {
-  const { tickets, events, currentUser } = useEventContext();
+  const { events } = useEventContext();
   const [activeTab, setActiveTab] = useState("tickets");
-  const [userTickets, setUserTicket] = useState([])
+  const [userTickets, setUserTicket] = useState([]);
   const provider = new ethers.BrowserProvider(window.ethereum);
-  
+
   // Get user's tickets with event information
   useEffect(() => {
-    const getUserData = async ()=>{
+    const getUserData = async () => {
       const signer = await provider.getSigner();
       const userAddress = await signer.getAddress();
-      const ticket = await ticketsOfUsers(userAddress)
-      setUserTicket(ticket);
-    }
-    getUserData()
-  }, [])
-  
+      const ticketList = await ticketsOfUsers(userAddress);
+
+      const updatedTickets = [];
+      for (const ticket of ticketList) {
+        const listed = await isTicketListed(ticket.tokenId);
+        updatedTickets.push({ ...ticket, isListed: listed });
+      }
+      setUserTicket(updatedTickets);
+    };
+    getUserData();
+  }, []);
+
   const ticketsWithEventData = userTickets.map((ticket) => {
     const event = events.find((e) => e.id === ticket.eventId);
     return { ...ticket, event };
   });
 
-  // Separate tickets by upcoming and past events
+  // Filter tickets by date
   const currentDate = new Date();
   // const upcomingTickets = ticketsWithEventData.filter(
   //   (ticket) => ticket.event && new Date(ticket.event.date) >= currentDate
   // );
-  const upcomingTickets = ticketsWithEventData;
-  console.log(upcomingTickets, "ticketWithEvent")
+  const upcomingTickets = ticketsWithEventData.filter(
+    (ticket) => !ticket.forResale
+  );
+  console.log(upcomingTickets, "ticketWithEvent");
   const pastTickets = ticketsWithEventData.filter(
     (ticket) => ticket.event && new Date(ticket.event.date) < currentDate
   );
@@ -42,6 +97,7 @@ const DashboardPage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-8">
+<<<<<<< HEAD
         <div className="bg-purple-700 p-6 text-white">
           <div className="flex items-center">
             {/* <img
@@ -58,6 +114,8 @@ const DashboardPage = () => {
           </div>
         </div>
 
+=======
+>>>>>>> 47762960838a6a878bbdeb0cb6292aa2155eb1e8
         <div className="border-b border-gray-200">
           <nav className="flex">
             <button
@@ -88,45 +146,14 @@ const DashboardPage = () => {
 
       {activeTab === "tickets" && (
         <div>
-          {/* Upcoming Tickets */}
-          <section className="mb-10">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-800">
-                Upcoming Events
-              </h2>
-              <span className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm font-medium">
-                {upcomingTickets.length} Tickets
-              </span>
-            </div>
+          <TicketSection
+            title="Upcoming Events"
+            tickets={upcomingTickets}
+            badgeColor="purple"
+          />
 
-            {upcomingTickets.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {upcomingTickets.map((ticket) => (
-                  <TicketCard
-                    key={ticket.id}
-                    ticket={ticket}
-                    event={ticket.eventDetails}
-                    showResaleOption={true}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-                <p className="text-gray-600 mb-4">
-                  You don't have any upcoming events.
-                </p>
-                <a
-                  href="/events"
-                  className="inline-block bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700 transition-colors"
-                >
-                  Browse Events
-                </a>
-              </div>
-            )}
-          </section>
-
-          {/* Past Tickets */}
           {pastTickets.length > 0 && (
+<<<<<<< HEAD
             <section>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-gray-800">
@@ -200,6 +227,14 @@ const DashboardPage = () => {
             <p className="text-gray-600 text-center py-6">
               No activity to display yet.
             </p>
+=======
+            <TicketSection
+              title="Past Events"
+              tickets={pastTickets}
+              isPast={true}
+              badgeColor="gray"
+            />
+>>>>>>> 47762960838a6a878bbdeb0cb6292aa2155eb1e8
           )}
         </div>
       )} */}
