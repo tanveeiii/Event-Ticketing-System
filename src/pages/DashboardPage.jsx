@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useEventContext } from "../context/EventContext";
+import { Activity } from "lucide-react";
 import TicketCard from "../components/TicketCard";
 import { TicketCheck } from "lucide-react";
 import { ticketsOfUsers } from "../ethers/ethersEvents";
