@@ -71,15 +71,6 @@ const EventDetailsPage = () => {
     console.log(event);
   }, [event]);
 
-  const priceInEth = async (price) => {
-    const response = await fetch(
-      "https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
-    );
-    const data = await response.json();
-    const ethToUsdRate = data.ethereum.usd;
-    return Number(price) / ethToUsdRate;
-  };
-
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > 100) {
@@ -126,10 +117,7 @@ const EventDetailsPage = () => {
 
       const metadataJSON = JSON.stringify(ticketMetadata);
       const ticketURI = `data:application/json;base64,${btoa(metadataJSON)}`;
-      const new_price = ethers.parseEther(
-        (Number(event.price) / 2000).toString()
-      );
-      await buyTicket(id, ticketURI, new_price);
+      const tx = await buyTicket(id, ticketURI, event.price);
       purchaseTicket(event.id);
       setPurchaseStatus("success");
 
@@ -207,7 +195,7 @@ const EventDetailsPage = () => {
                 ? "Ticket Purchased"
                 : purchaseStatus === "processing"
                 ? "Processing..."
-                : `Buy Ticket - $ ${event.price}`}
+                : `Buy Ticket - ${event.price} ETH`}
             </button>
           ) : (
             <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
