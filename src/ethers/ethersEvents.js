@@ -27,9 +27,9 @@ export const createEvent = async (eventName, eventDate, eventPrice, totalTickets
 // Buy Ticket
 export const buyTicket = async (eventId, ticketURI, price) => {
     const contract = await getWriteableContract()
-    console.log(contract," ", ticketURI);
+    console.log(price);
     const tx = await contract.buyTicket(eventId, ticketURI, {
-      value: ethers.parseEther(price)
+      value: ethers.parseEther(price.toString())
     });
     console.log(tx, " ", price)
     const receipt = await tx.wait();

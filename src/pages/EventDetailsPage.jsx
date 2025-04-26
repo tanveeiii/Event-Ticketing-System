@@ -61,6 +61,13 @@ const EventDetailsPage = () => {
     console.log(event)
   }, [event])
 
+  const priceInEth = async (price) => {
+    const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+    const data = await response.json();
+    const ethToUsdRate = data.ethereum.usd;
+    return Number(price) / ethToUsdRate;
+  };
+
 
   useEffect(() => {
     const handleScroll = () => {
@@ -106,7 +113,8 @@ const EventDetailsPage = () => {
 
       const metadataJSON = JSON.stringify(ticketMetadata);
       const ticketURI = `data:application/json;base64,${btoa(metadataJSON)}`;
-      const tx = await buyTicket(id, ticketURI, event.price)
+      const new_price = (await priceInEth(event.price));
+      const tx = await buyTicket(id, ticketURI, new_price)
       purchaseTicket(event.id);
       setPurchaseStatus('success');
 
