@@ -13,6 +13,8 @@ const EventCard = ({ event }) => {
   };
   console.log(event, "EVNET")
 
+  
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:shadow-xl hover:-translate-y-1">
       <div className="h-48 relative overflow-hidden">
@@ -37,7 +39,7 @@ const EventCard = ({ event }) => {
           </div>
           <div className="flex items-center text-gray-700 font-semibold">
             <DollarSign size={16} className="mr-2 text-purple-500" />
-            <span>{Number(event.price) / 1e18} ETH</span>
+            <span>{Number(event.price)}</span>
           </div>
           <div className="flex items-center text-gray-600">
             <MapPin size={16} className="mr-2 text-purple-500" />
