@@ -5,9 +5,9 @@ import EventTicketABI from "../../build/contracts/EventTicket.json";
 const EVENT_TICKET_ADDRESS = import.meta.env.VITE_EVENT_TICKET_ADDRESS;
 const provider = new JsonRpcProvider("http://127.0.0.1:7545")
 const eventContract = new ethers.Contract(
-    EVENT_TICKET_ADDRESS,      
-    EventTicketABI.abi, 
-    provider          
+    EVENT_TICKET_ADDRESS,
+    EventTicketABI.abi,
+    provider
 );
 
 // Connect to wallet and return writeable contract instance
@@ -24,12 +24,12 @@ export const getWriteableContract = async () => {
 // Create event
 export const createEvent = async (eventName, eventDate, eventPrice, totalTickets, location, description, imageUrl, category) => {
     const contract = await getWriteableContract();
-    const tx = await contract.createEvent(eventName, eventDate, eventPrice, totalTickets, location, description, imageUrl, category);    
+    const tx = await contract.createEvent(eventName, eventDate, eventPrice, totalTickets, location, description, imageUrl, category);
     return tx;
 }
 
 // Buy Ticket
-export const buyTicket = async (eventId, ticketURI , priceInWei) => {
+export const buyTicket = async (eventId, ticketURI, priceInWei) => {
     const contract = await getWriteableContract();
     const tx = await contract.buyTicket(eventId, ticketURI, { value: priceInWei });
     await tx.wait();
@@ -37,7 +37,7 @@ export const buyTicket = async (eventId, ticketURI , priceInWei) => {
 }
 
 // Fetch events
-export const getEvent = async(eventId) => {
+export const getEvent = async (eventId) => {
     return await eventContract.events(eventId);
 }
 
@@ -62,70 +62,63 @@ export const invalidateTicket = async (tokenId) => {
     return tx;
 };
 
+export const ticketsOfUsers = async (address) => {
+    const ticketIds = await eventContract.getTicketsOfUser(address);
+
+    const tickets = await Promise.all(ticketIds.map(async (tokenId) => {
+        const eventId = await eventContract.ticketToEvent(tokenId);
+        const eventDetails = await eventContract.events(eventId);
+        const tokenURI = await eventContract.tokenURI(tokenId);
+
+        return {
+            tokenId: tokenId.toString(),
+            eventId: eventId.toString(),
+            eventDetails: {
+                name: eventDetails.name,
+                date: eventDetails.date.toString(),
+                location: eventDetails.location,
+                description: eventDetails.description,
+                imageUrl: eventDetails.imageUrl,
+                price: eventDetails.price.toString(),
+                totalTickets: eventDetails.totalTickets.toString(),
+                ticketsSold: eventDetails.ticketsSold.toString(),
+                organizer: eventDetails.organizer,
+                category: eventDetails.category,
+            },
+            tokenURI: tokenURI, // if needed
+        };
+    }));
+
+    console.log(tickets);
+
+}
+
 export async function getAvailableEvents() {
     const contract = await getWriteableContract()
     const eventCount = await contract.eventIdCounter();
     const currentTime = Math.floor(Date.now() / 1000);
     const availableEvents = [];
-  
+
     for (let i = 0; i < eventCount; i++) {
-      const eventData = await contract.events(i);
-      const eventObj = {
-        id: i,
-        name: eventData.name,
-        date: Number(eventData.date),
-        price: eventData.price,
-        totalTickets: Number(eventData.totalTickets),
-        ticketsSold: Number(eventData.ticketsSold),
-        organizer: eventData.organizer,
-        location: eventData.location,
-        description: eventData.description,
-        imageUrl: eventData.imageUrl,
-        category: eventData.category
-      };
+        const eventData = await contract.events(i);
+        const eventObj = {
+            id: i,
+            name: eventData.name,
+            date: Number(eventData.date),
+            price: eventData.price,
+            totalTickets: Number(eventData.totalTickets),
+            ticketsSold: Number(eventData.ticketsSold),
+            organizer: eventData.organizer,
+            location: eventData.location,
+            description: eventData.description,
+            imageUrl: eventData.imageUrl,
+            category: eventData.category
+        };
 
-      if (eventObj.date > currentTime && eventObj.ticketsSold < eventObj.totalTickets) {
-        availableEvents.push(eventObj);
-      }
-    }
-  
-    return availableEvents;
-  }
-
-  // function to get the user ticket data
-  export const getUserTicketData = async () => {
-    if (!window.ethereum) throw new Error("MetaMask not installed");
-  
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    await provider.send("eth_requestAccounts", []);
-    const signer = provider.getSigner();
-    const userAddress = await signer.getAddress();
-    const owner = await contract.ownerOf(tokenId);
-    const contract = new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, provider);
-    const nextTokenId = await contract.nextTokenId();
-    const tickets = [];
-  
-    for (let tokenId = 0; tokenId < nextTokenId; tokenId++) {
-      try {
-        const owner = await contract.ownerOf(tokenId);
-        if (owner.toLowerCase() === userAddress.toLowerCase()) {
-          const eventId = await contract.ticketToEvent(tokenId);
-          const isValid = await contract.isTicketValid(tokenId);
-          const tokenURI = await contract.tokenURI(tokenId);
-  
-          tickets.push({
-            tokenId,
-            ownerAddress,
-            eventId: Number(eventId),
-            valid: isValid,
-            tokenURI,
-          });
+        if (eventObj.date > currentTime && eventObj.ticketsSold < eventObj.totalTickets) {
+            availableEvents.push(eventObj);
         }
-      } catch (err) {
-        console.log("Error while geting user ticket data: ", err)
-        continue;
-      }
     }
-  
-    return tickets;
-  };
+
+    return availableEvents;
+}
