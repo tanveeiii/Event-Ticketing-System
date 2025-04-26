@@ -59,8 +59,8 @@ const TicketCard = ({ ticket, event, showResaleOption = false, isPast = false })
             <Tag className="h-5 w-5 mr-2" />
             <span>
               {ticket?.forResale
-                ? `Resale Price: $${ticket?.resalePrice ? Number(ticket.resalePrice).toFixed(2) : "0.00"}`
-                : `Original Price: $${formatPrice(ticket?.eventDetails?.price)}`
+                ? `Resale Price: ${ticket?.resalePrice ? Number(ticket.resalePrice).toFixed(2) : "0.00"} ETH`
+                : `Original Price: ${formatPrice(ticket?.eventDetails?.price)} ETH`
               }
             </span>
           </div>
