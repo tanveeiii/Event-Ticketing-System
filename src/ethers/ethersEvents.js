@@ -1,4 +1,4 @@
-import { ethers, JsonRpcProvider } from 'ethers';
+import { ethers, JsonRpcProvider} from 'ethers';
 import EventTicketABI from "../../build/contracts/EventTicket.json";
 // import dotenv from 'dotenv';
 // dotenv.config();
@@ -17,7 +17,7 @@ export const getWriteableContract = async () => {
     console.log(web3Provider)
     await web3Provider.send("eth_requestAccounts", []);
     const signer = await web3Provider.getSigner();
-    console.log(EVENT_TICKET_ADDRESS)
+    console.log(signer)
     return new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, signer);
 };
 
@@ -29,9 +29,13 @@ export const createEvent = async (eventName, eventDate, eventPrice, totalTickets
 }
 
 // Buy Ticket
-export const buyTicket = async (eventId, ticketURI, priceInWei) => {
-    const contract = await getWriteableContract();
-    const tx = await contract.buyTicket(eventId, ticketURI, { value: priceInWei });
+export const buyTicket = async (eventId, ticketURI, price) => {
+    const contract = await getWriteableContract()
+    console.log(contract," ", ticketURI);
+    const tx = await contract.buyTicket(eventId, ticketURI, {
+      value: ethers.parseEther(price)
+    });
+    console.log(tx, " ", price)
     await tx.wait();
     return tx;
 }
