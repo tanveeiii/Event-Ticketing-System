@@ -6,7 +6,7 @@ import EventCard from '../components/EventCard';
 import { getAvailableEvents } from '../ethers/ethersEvents';
 
 const HomePage = () => {
-  const [eventsAdded, setEvents] = useState();
+  const [eventsAdded, setEvents] = useState([]);
   const { events } = useEventContext();
   
   const featuredEvents = events.slice(0, 3);
