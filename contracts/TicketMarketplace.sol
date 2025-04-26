@@ -49,7 +49,11 @@ contract TicketMarketplace {
         require(item.price > 0, "Ticket not for sale");
         require(msg.value == item.price, "Incorrect payment");
 
-        IEventTicket(eventTicketAddress).transferFrom(
+        IEventTicket ticket = IEventTicket(eventTicketAddress);
+        require(ticket.ownerOf(tokenId) == item.seller, "Seller no longer owns the ticket");
+        require(ticket.isTicketValid(tokenId), "Ticket is no longer valid");
+
+        ticket.transferFrom(
             item.seller,
             msg.sender,
             tokenId

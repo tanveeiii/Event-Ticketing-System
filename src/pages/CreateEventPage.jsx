@@ -115,6 +115,11 @@ const CreateEventPage = () => {
               name="date"
               value={formData.date}
               onChange={handleChange}
+              min={(() => {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 2);
+                return tomorrow.toISOString().split("T")[0];
+              })()}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
               disabled={isSubmitting}
