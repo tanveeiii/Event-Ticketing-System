@@ -1,39 +1,47 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, Link, useFetcher } from 'react-router-dom';
-import { Calendar, MapPin, Clock, DollarSign, User, AlertCircle, CheckCircle } from 'lucide-react';
-import { useEventContext } from '../context/EventContext';
-import { getEvent } from '../ethers/ethersEvents';
-import { ethers } from 'ethers';
-import { buyTicket } from '../ethers/ethersEvents';
+import React, { useEffect, useState } from "react";
+import { useParams, Link, useFetcher } from "react-router-dom";
+import {
+  Calendar,
+  MapPin,
+  Clock,
+  DollarSign,
+  User,
+  AlertCircle,
+  CheckCircle,
+} from "lucide-react";
+import { useEventContext } from "../context/EventContext";
+import { getEvent } from "../ethers/ethersEvents";
+import { ethers } from "ethers";
+import { buyTicket } from "../ethers/ethersEvents";
 
 const EventDetailsPage = () => {
   const { id } = useParams();
   const { events, purchaseTicket, tickets } = useEventContext();
   const [event, setEvent] = useState({
-    name: '',
-    date: '',
-    location: '',
-    description: '',
-    imageUrl: '',
-    price: '',
-    ticketsAvailable: '',
-    ticketsSold: '',
-    organizer: '',
-    category: '',
+    name: "",
+    date: "",
+    location: "",
+    description: "",
+    imageUrl: "",
+    price: "",
+    ticketsAvailable: "",
+    ticketsSold: "",
+    organizer: "",
+    category: "",
   });
-  const [purchaseStatus, setPurchaseStatus] = useState('idle');
+  const [purchaseStatus, setPurchaseStatus] = useState("idle");
   const [isScrolled, setIsScrolled] = useState(false);
 
-  const userTicketsForEvent = tickets.filter(t => t.eventId === id);
+  const userTicketsForEvent = tickets.filter((t) => t.eventId === id);
   const hasTicket = userTicketsForEvent.length > 0;
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
-    return new Intl.DateTimeFormat('en-US', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric'
+    return new Intl.DateTimeFormat("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
     }).format(date);
   };
 
@@ -42,12 +50,14 @@ const EventDetailsPage = () => {
       const eventDetails = await getEvent(id);
       setEvent({
         name: eventDetails[0],
-        date: new Date(Number(eventDetails[1]) * 1000).toISOString().split('T')[0], // convert timestamp to date
+        date: new Date(Number(eventDetails[1]) * 1000)
+          .toISOString()
+          .split("T")[0], // convert timestamp to date
         location: eventDetails[2],
         description: eventDetails[3],
         imageUrl: eventDetails[4],
-        price: ethers.formatEther(eventDetails[5]), // convert wei to ether
-        ticketsAvailable: Number(eventDetails[6])-(Number(eventDetails[7])),
+        price: Number(eventDetails[5]) / 1e18, // convert wei to ether
+        ticketsAvailable: Number(eventDetails[6]) - Number(eventDetails[7]),
         ticketsSold: Number(eventDetails[7]),
         organizer: eventDetails[8],
         category: eventDetails[9],
@@ -58,9 +68,8 @@ const EventDetailsPage = () => {
   }, []);
 
   useEffect(() => {
-    console.log(event)
-  }, [event])
-
+    console.log(event);
+  }, [event]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -71,15 +80,17 @@ const EventDetailsPage = () => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   if (!event) {
     return (
       <div className="container mx-auto px-4 py-16 text-center">
         <h1 className="text-2xl font-bold mb-4">Event not found</h1>
-        <p className="mb-6">The event you are looking for does not exist or has been removed.</p>
+        <p className="mb-6">
+          The event you are looking for does not exist or has been removed.
+        </p>
         <Link
           to="/events"
           className="inline-block bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700 transition-colors"
@@ -90,9 +101,9 @@ const EventDetailsPage = () => {
     );
   }
 
-  const handlePurchaseTicket = async() => {
+  const handlePurchaseTicket = async () => {
     try {
-      setPurchaseStatus('processing');
+      setPurchaseStatus("processing");
 
       const ticketMetadata = {
         name: event.name + " Ticket",
@@ -100,40 +111,40 @@ const EventDetailsPage = () => {
         image: event.imageUrl,
         attributes: [
           { trait_type: "Date", value: event.date },
-          { trait_type: "Location", value: event.location }
-        ]
+          { trait_type: "Location", value: event.location },
+        ],
       };
 
       const metadataJSON = JSON.stringify(ticketMetadata);
       const ticketURI = `data:application/json;base64,${btoa(metadataJSON)}`;
-      const tx = await buyTicket(id, ticketURI, event.price)
+      const tx = await buyTicket(id, ticketURI, event.price.toString());
       purchaseTicket(event.id);
-      setPurchaseStatus('success');
+      setPurchaseStatus("success");
 
       setEvent({
-        'ticketsAvailable': event.ticketsAvailable-1,
-        'name': event.name,
-        'location': event.location,
-        'category': event.category,
-        'date': event.date,
-        'description': event.description,
-        'imageUrl': event.imageUrl,
-        'price': event.price,
-        'organizer': event.organizer,
-        'ticketsSold': event.ticketsSold+1
-      })
+        ticketsAvailable: event.ticketsAvailable - 1,
+        name: event.name,
+        location: event.location,
+        category: event.category,
+        date: event.date,
+        description: event.description,
+        imageUrl: event.imageUrl,
+        price: event.price,
+        organizer: event.organizer,
+        ticketsSold: event.ticketsSold + 1,
+      });
 
-      console.log(events.ticketsSold)
+      console.log(events.ticketsSold);
 
       setTimeout(() => {
-        setPurchaseStatus('idle');
+        setPurchaseStatus("idle");
       }, 3000);
     } catch (error) {
-      console.log("Error while purchasing: ", error)
-      setPurchaseStatus('error');
+      console.log("Error while purchasing: ", error);
+      setPurchaseStatus("error");
 
       setTimeout(() => {
-        setPurchaseStatus('idle');
+        setPurchaseStatus("idle");
       }, 3000);
     }
   };
@@ -160,8 +171,9 @@ const EventDetailsPage = () => {
 
       {/* Sticky Purchase Bar */}
       <div
-        className={`sticky top-16 z-20 w-full bg-white shadow-md transition-all duration-300 ${isScrolled ? "py-3" : "py-0 opacity-0 pointer-events-none"
-          }`}
+        className={`sticky top-16 z-20 w-full bg-white shadow-md transition-all duration-300 ${
+          isScrolled ? "py-3" : "py-0 opacity-0 pointer-events-none"
+        }`}
       >
         <div className="container mx-auto px-4 flex justify-between items-center">
           <h2 className="text-xl font-bold text-gray-800 truncate">
@@ -171,18 +183,19 @@ const EventDetailsPage = () => {
             <button
               onClick={handlePurchaseTicket}
               disabled={hasTicket || purchaseStatus !== "idle"}
-              className={`px-4 py-2 rounded-md text-white font-medium ${hasTicket
+              className={`px-4 py-2 rounded-md text-white font-medium ${
+                hasTicket
                   ? "bg-green-500 cursor-default"
                   : purchaseStatus === "processing"
-                    ? "bg-purple-400 cursor-wait"
-                    : "bg-purple-600 hover:bg-purple-700 transition-colors"
-                }`}
+                  ? "bg-purple-400 cursor-wait"
+                  : "bg-purple-600 hover:bg-purple-700 transition-colors"
+              }`}
             >
               {hasTicket
                 ? "Ticket Purchased"
                 : purchaseStatus === "processing"
-                  ? "Processing..."
-                  : `Buy Ticket - ${event.price} ETH`}
+                ? "Processing..."
+                : `Buy Ticket - ${event.price} ETH`}
             </button>
           ) : (
             <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-sm font-medium">
@@ -249,31 +262,40 @@ const EventDetailsPage = () => {
           {/* Ticket Purchase */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm p-6 sticky top-32">
-              <h2 className="text-xl font-bold text-gray-800 mb-4">Get Tickets</h2>
+              <h2 className="text-xl font-bold text-gray-800 mb-4">
+                Get Tickets
+              </h2>
 
               <div className="flex justify-between items-center mb-4">
                 <span className="text-gray-700">Price:</span>
-                <span className="text-2xl font-bold text-gray-900">{event.price}</span>
+                <span className="text-2xl font-bold text-gray-900">
+                  {event.price} ETH
+                </span>
               </div>
 
               <div className="flex justify-between items-center mb-6">
                 <span className="text-gray-700">Available:</span>
-                <span className={`${event.ticketsAvailable > 50 ? 'text-green-600' :
-                    event.ticketsAvailable > 10 ? 'text-amber-600' :
-                      'text-red-600'
-                  } font-medium`}>
+                <span
+                  className={`${
+                    event.ticketsAvailable > 50
+                      ? "text-green-600"
+                      : event.ticketsAvailable > 10
+                      ? "text-amber-600"
+                      : "text-red-600"
+                  } font-medium`}
+                >
                   {event.ticketsAvailable} tickets
                 </span>
               </div>
 
-              {purchaseStatus === 'success' && (
+              {purchaseStatus === "success" && (
                 <div className="bg-green-100 text-green-800 p-3 rounded-md flex items-center mb-4">
                   <CheckCircle size={18} className="mr-2" />
                   Ticket purchased successfully!
                 </div>
               )}
 
-              {purchaseStatus === 'error' && (
+              {purchaseStatus === "error" && (
                 <div className="bg-red-100 text-red-800 p-3 rounded-md flex items-center mb-4">
                   <AlertCircle size={18} className="mr-2" />
                   There was a problem with your purchase.
@@ -288,7 +310,7 @@ const EventDetailsPage = () => {
                   </div>
                   <button
                     onClick={handlePurchaseTicket}
-                    disabled={purchaseStatus !== 'idle'}
+                    disabled={purchaseStatus !== "idle"}
                     className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 rounded-md transition-colors"
                   >
                     Buy Another Ticket
@@ -303,7 +325,7 @@ const EventDetailsPage = () => {
               ) : event.ticketsAvailable > 0 ? (
                 <button
                   onClick={handlePurchaseTicket}
-                  disabled={purchaseStatus !== 'idle'}
+                  disabled={purchaseStatus !== "idle"}
                   className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 rounded-md transition-colors"
                 >
                   Buy Ticket

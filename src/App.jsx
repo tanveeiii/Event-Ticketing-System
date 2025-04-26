@@ -1,15 +1,16 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { EventProvider } from './context/EventContext';
-import Navbar from './components/Navbar';
-import HomePage from './pages/HomePage';
-import EventsPage from './pages/EventsPage';
-import EventDetailsPage from './pages/EventDetailsPage';
-import DashboardPage from './pages/DashboardPage';
-import CreateEventPage from './pages/CreateEventPage';
-import ResellTicketPage from './pages/ResellTicketPage';
-import MarketplacePage from './pages/MarketplacePage';
-import { ToastContainer } from 'react-toastify';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { EventProvider } from "./context/EventContext";
+import Navbar from "./components/Navbar";
+import HomePage from "./pages/HomePage";
+import EventsPage from "./pages/EventsPage";
+import EventDetailsPage from "./pages/EventDetailsPage";
+import DashboardPage from "./pages/DashboardPage";
+import CreateEventPage from "./pages/CreateEventPage";
+import ResellTicketPage from "./pages/ResellTicketPage";
+import MarketplacePage from "./pages/MarketplacePage";
+import CreatedEvents from "./pages/CreatedEvents";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
               <Route path="/create-event" element={<CreateEventPage />} />
               <Route path="/resell-ticket/:id" element={<ResellTicketPage />} />
               <Route path="/marketplace" element={<MarketplacePage />} />
+              <Route path="/created-events" element={<CreatedEvents />} />
             </Routes>
           </main>
         </div>

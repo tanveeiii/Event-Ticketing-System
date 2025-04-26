@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import {Menu, X, TicketCheck, Home, Calendar, Plus, ShoppingBag} from "lucide-react";
+import {
+  Menu,
+  X,
+  TicketCheck,
+  Home,
+  Calendar,
+  Plus,
+  ShoppingBag,
+} from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import MetaMaskLogin from "../components/MMLogin";
 
@@ -21,6 +29,11 @@ const Navbar = () => {
       icon: <ShoppingBag size={20} />,
     },
     { name: "My Tickets", href: "/dashboard", icon: <TicketCheck size={20} /> },
+    {
+      name: "Created Events",
+      href: "/created-events",
+      icon: <TicketCheck size={20} />,
+    },
   ];
 
   const isActive = (path) => {
@@ -45,10 +58,11 @@ const Navbar = () => {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`lg:px-3 px-2 py-2 rounded-md text-sm font-medium flex items-center transition-colors duration-200 ${isActive(item.href)
+                className={`lg:px-3 px-2 py-2 rounded-md text-sm font-medium flex items-center transition-colors duration-200 ${
+                  isActive(item.href)
                     ? "text-purple-600 bg-purple-50"
                     : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
-                  }`}
+                }`}
               >
                 <span className="mr-2">{item.icon}</span>
                 {item.name}
@@ -62,7 +76,6 @@ const Navbar = () => {
 
           {/* Mobile menu button */}
           <div className="md:hidden flex">
-
             <div className="md:hidden flex items-center">
               <button
                 onClick={toggleMenu}
@@ -86,10 +99,11 @@ const Navbar = () => {
               <Link
                 key={item.name}
                 to={item.href}
-                className={`px-3 py-2 rounded-md text-base font-medium flex items-center ${isActive(item.href)
+                className={`px-3 py-2 rounded-md text-base font-medium flex items-center ${
+                  isActive(item.href)
                     ? "text-purple-600 bg-purple-50"
                     : "text-gray-600 hover:text-purple-600 hover:bg-purple-50"
-                  }`}
+                }`}
                 onClick={() => setIsMenuOpen(false)}
               >
                 <span className="mr-3">{item.icon}</span>

@@ -3,20 +3,30 @@ import { useNavigate } from 'react-router-dom';
 import { Calendar, MapPin, Tag } from 'lucide-react';
 import PurchaseTicket from './PurchaseTicket';
 import formatDate from '../utils/fornatDate';
+import { listTicket } from '../ethers/ethersMarketplace';
 
 const TicketCard = ({ ticket, event, showResaleOption = false, isPast = false }) => {
   const navigate = useNavigate();
   const [isHovered, setIsHovered] = useState(false);
+  const [showInput, setShowInput] = useState(false);
+  const [resalePriceInput, setResalePriceInput] = useState('');
 
-  const handleResellClick = () => {
-    navigate(`/resell-ticket/${ticket.id}`);
+  console.log(ticket, "tivcke")
+
+  const handleListClick = () => {
+    setShowInput(true); // show the input when clicking "List for Resale"
   };
 
-
-  const formatPrice = (priceInWei) => {
-    if (!priceInWei) return "0.00";
-    return (Number(priceInWei) / 1e18).toFixed(2);  // Assume price is stored in Wei (smallest ETH unit)
+  const handleConfirmResale = async() => {
+    if (resalePriceInput) {
+      const tx = await listTicket(ticket.tokenId, resalePriceInput);
+      console.log(tx, "tx")
+      navigate("/marketplace")
+    } else {
+      alert('Please enter a resale price.');
+    }
   };
+
 
   return (
     <div
@@ -47,7 +57,7 @@ const TicketCard = ({ ticket, event, showResaleOption = false, isPast = false })
         <div className="space-y-2 mb-4">
           <div className="flex items-center text-gray-600">
             <Calendar className="h-5 w-5 mr-2" />
-            <span>{formatDate(ticket.eventDetails.date)}</span>
+            {/* <span>{formatDate(ticket.event.date)}</span> */}
           </div>
 
           <div className="flex items-center text-gray-600">
@@ -59,8 +69,8 @@ const TicketCard = ({ ticket, event, showResaleOption = false, isPast = false })
             <Tag className="h-5 w-5 mr-2" />
             <span>
               {ticket?.forResale
-                ? `Resale Price: ${ticket?.resalePrice ? Number(ticket.resalePrice).toFixed(2) : "0.00"} ETH`
-                : `Original Price: ${formatPrice(ticket?.eventDetails?.price)} ETH`
+                ? `Resale Price: $${ticket?.resalePrice ? Number(ticket.resalePrice).toFixed(2) : "0.00"}`
+                : `Original Price: ${ticket?.eventDetails?.price/1e18}`
               }
             </span>
           </div>
@@ -75,11 +85,31 @@ const TicketCard = ({ ticket, event, showResaleOption = false, isPast = false })
             ticketId={ticket?.id}
           />
         )}
+{/* Resale Price Input */}
+{showInput && !isPast && (
+          <div className="mt-4">
+            <input
+              type="number"
+              step="0.0001"
+              min="0"
+              placeholder="Enter resale price in ETH"
+              value={resalePriceInput}
+              onChange={(e) => setResalePriceInput(e.target.value)}
+              className="w-full p-2 border rounded-md mb-2"
+            />
+            <button
+              onClick={handleConfirmResale}
+              className="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700 transition-colors"
+            >
+              Confirm Resale
+            </button>
+          </div>
+        )}
 
         {/* Resell Button */}
-        {showResaleOption && !isPast && !ticket?.forResale && (
+        {showResaleOption && !isPast && !ticket?.forResale && !showInput && (
           <button
-            onClick={handleResellClick}
+            onClick={handleListClick}
             className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 transition-colors"
           >
             List for Resale
