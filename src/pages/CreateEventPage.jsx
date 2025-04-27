@@ -20,7 +20,7 @@ const CreateEventPage = () => {
   const [formData, setFormData] = useState({
     title: "",
     date: "",
-    time: "",
+    // time: "",
     location: "",
     description: "",
     price: "",
@@ -126,7 +126,7 @@ const CreateEventPage = () => {
             />
           </div>
 
-          <div>
+          {/* <div>
             <label
               className="block text-gray-700 font-medium mb-2"
               htmlFor="time"
@@ -146,7 +146,7 @@ const CreateEventPage = () => {
               required
               disabled={isSubmitting}
             />
-          </div>
+          </div> */}
         </div>
 
         <div className="mb-6">
