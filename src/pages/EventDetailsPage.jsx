@@ -225,16 +225,16 @@ const EventDetailsPage = () => {
                     <p className="text-gray-700">{event.date}</p>
                   </div>
                 </div>
-
+{/* 
                 <div className="flex items-start">
-                  <div className="bg-purple-100 p-2 rounded-full mr-4">
+                   <div className="bg-purple-100 p-2 rounded-full mr-4">
                     <Clock size={20} className="text-purple-600" />
-                  </div>
+                  </div> 
                   <div>
                     <h3 className="font-medium text-gray-900">Time</h3>
                     <p className="text-gray-700">{event.time}</p>
                   </div>
-                </div>
+                </div> */}
 
                 <div className="flex items-start">
                   <div className="bg-purple-100 p-2 rounded-full mr-4">

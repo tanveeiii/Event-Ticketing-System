@@ -47,6 +47,7 @@ const MarketplacePage = () => {
           getEventFromToken(ticket.tokenId)
         );
         const events = await Promise.all(eventPromises);
+        console.log(events, "Events")
         setResaleEvents(events);
       } catch (error) {
         console.error("Error fetching event details:", error);
@@ -68,7 +69,7 @@ const MarketplacePage = () => {
       eventDetails: {
         name: resaleEvents[index]?.[0] || "",
         date: resaleEvents[index]?.[1] ? Number(resaleEvents[index][1]) : 0,
-        code: resaleEvents[index]?.[2] || "",
+        location: resaleEvents[index]?.[2] || "",
         organiser: resaleEvents[index]?.[3] || "",
         imageUrl: resaleEvents[index]?.[4] || "",
         price: Number(ticket.price).toString(),
