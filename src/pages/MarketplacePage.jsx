@@ -55,7 +55,8 @@ const MarketplacePage = () => {
         setIsLoading(false);
       }
     };
-
+    // {0: 'test-event-1', 1: 1746144000n, 2: 'sandipani seminar hall', 3: 'testing-1', 4: 'https://cdn.pixabay.com/photo/2016/11/23/15/48/audience-1853662_640.jpg', 5: 700000000000000000n, 6: 300n, 7: 2n, 8: '0xe698Eba855AB1F2fF8a08fF4A1C917d772578343', 9: 'conference'}
+   
     fetchEventDetails();
     setIsLoading(false)
   }, [resaleTickets]);

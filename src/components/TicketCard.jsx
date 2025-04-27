@@ -88,8 +88,11 @@ const TicketCard = ({
             For Resale
           </div>
         )}
+        <div className="absolute top-0 right-0 bg-purple-600 text-white px-3 py-1 m-2 rounded-full text-sm font-medium">
+          {ticket.eventDetails.category}
+        </div>
       </div>
-
+      
       <div className="p-6">
         <h3 className="text-xl font-bold text-gray-900 mb-2">
           {ticket.eventDetails.name || "Event Name"}
