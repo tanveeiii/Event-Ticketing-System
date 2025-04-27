@@ -50,14 +50,6 @@ export const isTicketAvailable = async (tokenId) => {
   return await eventContract.isTicketValid(tokenId);
 };
 
-// Resell ticket
-export const resellTicket = async (buyer, tokenId) => {
-  const contract = await getWriteableContract();
-  const tx = await contract.resellTicket(buyer, tokenId);
-  await tx.wait();
-  return tx;
-};
-
 // Invalidate ticket (Owner Only)
 export const invalidateTicket = async (tokenId) => {
   const contract = await getWriteableContract();

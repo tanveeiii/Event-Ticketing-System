@@ -3,6 +3,7 @@ pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 interface IEventTicket {
     function transferFrom(address from, address to, uint256 tokenId) external;
@@ -13,7 +14,7 @@ interface IEventTicket {
 }
 
 // Contract to resell tickets in the marketplace
-contract TicketMarketplace {
+contract TicketMarketplace is ReentrancyGuard {
     struct Listing {
         address seller;
         uint price;
@@ -44,7 +45,7 @@ contract TicketMarketplace {
         _removeTokenId(tokenId); // <-- remove from array
     }
 
-    function buyTicket(uint tokenId) external payable {
+    function buyTicket(uint tokenId) external payable nonReentrant {
         Listing memory item = listings[tokenId];
         require(item.price > 0, "Ticket not for sale");
         require(msg.value == item.price, "Incorrect payment");

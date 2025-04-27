@@ -3,8 +3,9 @@ pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract EventTicket is ERC721URIStorage, Ownable {
+contract EventTicket is ERC721URIStorage, Ownable, ReentrancyGuard {
     uint public nextTokenId;
     uint public eventIdCounter;
 
@@ -87,7 +88,7 @@ contract EventTicket is ERC721URIStorage, Ownable {
         );
     }
 
-    function buyTicket(uint eventId, string memory tokenURI) external payable {
+    function buyTicket(uint eventId, string memory tokenURI) external payable nonReentrant{
         Event storage _event = events[eventId];
         require(_event.date != 0, "Event does not exist");
         require(block.timestamp < _event.date, "Event already occurred");
@@ -107,20 +108,6 @@ contract EventTicket is ERC721URIStorage, Ownable {
         payable(_event.organizer).transfer(msg.value);
 
         emit PaymentTransferred(_event.organizer, msg.value);
-    }
-
-    function resellTicket(address to, uint tokenId) external payable {
-        require(ownerOf(tokenId) == msg.sender, "Not the ticket owner");
-
-        uint resalePrice = msg.value;
-
-        require(resalePrice > 0, "Resale price must be greater than 0");
-
-        ticketValidity[tokenId] = false;
-        _transfer(msg.sender, to, tokenId);
-
-        address payable seller = payable(msg.sender);
-        seller.transfer(resalePrice);
     }
 
     function invalidateTicket(uint tokenId) external onlyOwner {
