@@ -73,8 +73,15 @@ VITE_TICKET_MARKETPLACE_ADDRESS="Address of TicketMarketplace contract"
 - Copy one of the account private keys and import it into MetaMask.
 - Connect MetaMask to http://127.0.0.1:7545 (or your ganache port).
 
-### Starting the website
+### Starting the website in development
 
 ```bash
+npm run dev
+```
+
+For Landing page - 
+```bash
+cd landing
+npm i
 npm run dev
 ```
