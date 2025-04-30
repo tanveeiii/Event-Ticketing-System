@@ -40,13 +40,13 @@ export default function Home() {
 
               <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4">
                 <Link
-                  href="/events"
+                  href="http://localhost:5173/events"
                   className="px-8 py-3 text-base font-semibold rounded-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-blue-500/25 text-center flex items-center justify-center"
                 >
                   Browse Events
                 </Link>
                 <Link
-                  href="/register"
+                  href="http://localhost:5173"
                   className="px-8 py-3 text-base font-semibold rounded-full bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-purple-500/25 text-center flex items-center justify-center"
                 >
                   Get Started

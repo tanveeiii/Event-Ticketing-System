@@ -87,7 +87,6 @@ export const getListings = async () => {
   const [allListings, listedTokenIds] = await contract.getAllListings();
   console.log(allListings, "AL", listedTokenIds);
   const listings = listedTokenIds.map((tokenId, index) => {
-    console.log("HALAHI");
     console.log("TOkenI: ", tokenId);
     const listing = allListings[index];
     return {
