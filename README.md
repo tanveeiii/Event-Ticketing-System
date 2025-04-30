@@ -1,5 +1,15 @@
 # Event Ticketing System (Decentralized)
 
+### Team Members:
+- Tanvi Agarwal: 230001075
+- Suryansh Nagar: 230003077
+- Manan Jiwnani: 230001049
+- Manan Nigam: 230051009
+- Vasudha Bhuva: 230002017
+- Prince Kumar: 230051013
+
+## Overview
+
 A fully decentralized event ticketing system built on the Ethereum blockchain using smart contracts and NFTs (ERC-721). This platform enables event organizers to create events and issue NFT-based tickets, while allowing users to buy, sell, and verify tickets securely without intermediaries.
 
 ## Tech Stack
