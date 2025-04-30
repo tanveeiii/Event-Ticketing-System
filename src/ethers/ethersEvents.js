@@ -1,45 +1,109 @@
-import { ethers, JsonRpcProvider} from 'ethers';
+import { ethers, JsonRpcProvider } from "ethers";
 import EventTicketABI from "../../build/contracts/EventTicket.json";
 // import dotenv from 'dotenv';
 // dotenv.config();
 const EVENT_TICKET_ADDRESS = import.meta.env.VITE_EVENT_TICKET_ADDRESS;
-const provider = new JsonRpcProvider("http://127.0.0.1:7545")
+const provider = new JsonRpcProvider("http://127.0.0.1:7545");
 const eventContract = new ethers.Contract(
-    EVENT_TICKET_ADDRESS,
-    EventTicketABI.abi,
-    provider
+  EVENT_TICKET_ADDRESS,
+  EventTicketABI.abi,
+  provider
 );
 
 // Connect to wallet and return writeable contract instance
 export const getWriteableContract = async () => {
-    if (window.ethereum == null) throw new Error("MetaMask not installed");
-    const web3Provider = new ethers.BrowserProvider(window.ethereum);
-    console.log(web3Provider)
-    await web3Provider.send("eth_requestAccounts", []);
-    const signer = await web3Provider.getSigner();
-    console.log(signer)
-    return new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, signer);
+  if (window.ethereum == null) throw new Error("MetaMask not installed");
+  const web3Provider = new ethers.BrowserProvider(window.ethereum);
+  console.log(web3Provider);
+  await web3Provider.send("eth_requestAccounts", []);
+  const signer = await web3Provider.getSigner();
+  console.log(signer);
+  return new ethers.Contract(EVENT_TICKET_ADDRESS, EventTicketABI.abi, signer);
 };
 
-// Create event
-export const createEvent = async (eventName, eventDate, eventPrice, totalTickets, location, description, imageUrl, category) => {
-    const contract = await getWriteableContract();
-    const tx = await contract.createEvent(eventName, eventDate, eventPrice, totalTickets, location, description, imageUrl, category);
-    return tx;
-}
+// Create event with max tickets per buyer parameter
+export const createEvent = async (
+  eventName,
+  eventDate,
+  eventPrice,
+  totalTickets,
+  location,
+  description,
+  imageUrl,
+  category,
+  maxTicketsPerBuyer = 5 // Default to 5 if not specified
+) => {
+  const contract = await getWriteableContract();
+  const tx = await contract.createEvent(
+    eventName,
+    eventDate,
+    eventPrice,
+    totalTickets,
+    location,
+    description,
+    imageUrl,
+    category,
+    maxTicketsPerBuyer
+  );
+  return tx;
+};
 
-// Buy Ticket
+// Buy a single ticket (unchanged for backward compatibility)
 export const buyTicket = async (eventId, ticketURI, price) => {
-    const contract = await getWriteableContract()
-    console.log(contract," ", ticketURI);
-    const tx = await contract.buyTicket(eventId, ticketURI, {
-      value: ethers.parseEther(price)
-    });
-    console.log(tx, " ", price)
-    const receipt = await tx.wait();
-    console.log(receipt)
-    return tx;
-}
+  const contract = await getWriteableContract();
+  console.log(contract, " ", ticketURI);
+  const tx = await contract.buyTicket(eventId, ticketURI, {
+    value: ethers.parseEther(price),
+  });
+  console.log(tx, " ", price);
+  const receipt = await tx.wait();
+  console.log(receipt);
+  return tx;
+};
+
+// Buy multiple tickets at once (new function)
+export const buyMultipleTickets = async (
+  eventId,
+  tokenURIs,
+  quantity,
+  price
+) => {
+  const contract = await getWriteableContract();
+
+  // Calculate total price for all tickets
+  const totalPrice = (parseFloat(price) * quantity).toString();
+
+  console.log(`Buying ${quantity} tickets for total price: ${totalPrice} ETH`);
+
+  // Call the contract method with the array of token URIs
+  const tx = await contract.buyMultipleTickets(eventId, tokenURIs, quantity, {
+    value: ethers.parseEther(totalPrice),
+  });
+
+  const receipt = await tx.wait();
+  console.log("Transaction receipt:", receipt);
+  return tx;
+};
+
+// Get user's ticket count for a specific event (new function)
+export const getUserTicketCount = async (userAddress, eventId) => {
+  return await eventContract.getUserTicketCount(userAddress, eventId);
+};
+
+// Get the maximum tickets per buyer for an event (new function)
+export const getMaxTicketsPerBuyer = async (eventId) => {
+  const eventData = await eventContract.events(eventId);
+  return eventData.maxTicketsPerBuyer;
+};
+
+// Update maximum tickets per buyer (new function for organizers)
+export const updateMaxTicketsPerBuyer = async (eventId, newMaxTickets) => {
+  const contract = await getWriteableContract();
+  const tx = await contract.updateMaxTicketsPerBuyer(eventId, newMaxTickets);
+  await tx.wait();
+  return tx;
+};
+
 // Fetch events
 export const getEvent = async (eventId) => {
   return await eventContract.events(eventId);
@@ -59,7 +123,7 @@ export const invalidateTicket = async (tokenId) => {
 };
 
 export const ticketsOfUsers = async (address) => {
-  console.log("Adddress of User: ", address);
+  console.log("Address of User: ", address);
   const ticketIds = await eventContract.getTicketsOfUser(address);
   const tickets = await Promise.all(
     ticketIds.map(async (tokenId) => {
@@ -81,6 +145,8 @@ export const ticketsOfUsers = async (address) => {
           ticketsSold: eventDetails.ticketsSold.toString(),
           organizer: eventDetails.organizer,
           category: eventDetails.category,
+          maxTicketsPerBuyer:
+            eventDetails.maxTicketsPerBuyer?.toString() || "5",
         },
         tokenURI: tokenURI, // if needed
       };
@@ -108,6 +174,7 @@ export const eventsOfUsers = async (userAddress) => {
       description: eventData.description,
       imageUrl: eventData.imageUrl,
       category: eventData.category,
+      maxTicketsPerBuyer: Number(eventData.maxTicketsPerBuyer || 5),
     };
     if (eventObj.organizer == userAddress) {
       events.push(eventObj);
@@ -136,11 +203,12 @@ export async function getAvailableEvents() {
       description: eventData.description,
       imageUrl: eventData.imageUrl,
       category: eventData.category,
+      maxTicketsPerBuyer: Number(eventData.maxTicketsPerBuyer || 5),
     };
 
     if (
       eventObj.date > currentTime &&
-      eventObj.ticketsSold <= eventObj.totalTickets
+      eventObj.ticketsSold < eventObj.totalTickets
     ) {
       availableEvents.push(eventObj);
     }
@@ -149,18 +217,30 @@ export async function getAvailableEvents() {
   return availableEvents;
 }
 
-export const getEventFromToken = async(tokenId) => {
+// Get user's remaining available tickets for purchase (new function)
+export const getRemainingTicketsForUser = async (userAddress, eventId) => {
+  const eventData = await eventContract.events(eventId);
+  const userTickets = await eventContract.getUserTicketCount(
+    userAddress,
+    eventId
+  );
+  const maxTickets = eventData.maxTicketsPerBuyer || 5;
+
+  return maxTickets - userTickets;
+};
+
+export const getEventFromToken = async (tokenId) => {
   return await eventContract.getEventFromToken(tokenId);
-}
+};
 
 export const addTickets = async (eventId, additionalTickets) => {
   const contract = await getWriteableContract();
 
   try {
-      const tx = await contract.addTickets(eventId, additionalTickets);
-      await tx.wait();
-      console.log("Tickets added successfully");
+    const tx = await contract.addTickets(eventId, additionalTickets);
+    await tx.wait();
+    console.log("Tickets added successfully");
   } catch (error) {
-      console.log("Error adding tickets: ", error);
+    console.log("Error adding tickets: ", error);
   }
 };

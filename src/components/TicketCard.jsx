@@ -92,7 +92,7 @@ const TicketCard = ({
           {ticket.eventDetails.category}
         </div>
       </div>
-      
+
       <div className="p-6">
         <h3 className="text-xl font-bold text-gray-900 mb-2">
           {ticket.eventDetails.name || "Event Name"}
@@ -119,6 +119,19 @@ const TicketCard = ({
                       : "0.00"
                   } ETH`
                 : `Original Price: ${ticket?.eventDetails?.price / 1e18} ETH`}
+            </span>
+          </div>
+
+          <div className="flex items-center text-gray-600">
+            <Tag className="h-5 w-5 mr-2" />
+            <span>
+              {ticket?.forResale
+                ? `Resale Price: ${
+                    ticket?.resalePrice
+                      ? Number(ticket.resalePrice).toFixed(2)
+                      : "0.00"
+                  } ETH`
+                : `Selling Price: ${Number(ticket?.price) / 1e18} ETH`}
             </span>
           </div>
         </div>

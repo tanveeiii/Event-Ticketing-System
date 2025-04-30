@@ -5,13 +5,7 @@ import { getListings } from "../ethers/ethersMarketplace";
 import { getEventFromToken } from "../ethers/ethersEvents";
 
 // Constants
-const EVENT_TYPES = [
-  "Music",
-  "Sports",
-  "Theater",
-  "Conference",
-  "Workshop",
-];
+const EVENT_TYPES = ["Music", "Sports", "Theater", "Conference", "Workshop"];
 
 const MarketplacePage = () => {
   // State
@@ -47,7 +41,7 @@ const MarketplacePage = () => {
           getEventFromToken(ticket.tokenId)
         );
         const events = await Promise.all(eventPromises);
-        console.log(events, "Events")
+        console.log(events, "Events");
         setResaleEvents(events);
       } catch (error) {
         console.error("Error fetching event details:", error);
@@ -56,9 +50,9 @@ const MarketplacePage = () => {
       }
     };
     // {0: 'test-event-1', 1: 1746144000n, 2: 'sandipani seminar hall', 3: 'testing-1', 4: 'https://cdn.pixabay.com/photo/2016/11/23/15/48/audience-1853662_640.jpg', 5: 700000000000000000n, 6: 300n, 7: 2n, 8: '0xe698Eba855AB1F2fF8a08fF4A1C917d772578343', 9: 'conference'}
-   
+
     fetchEventDetails();
-    setIsLoading(false)
+    setIsLoading(false);
   }, [resaleTickets]);
 
   // Combine and filter tickets with event details
@@ -73,7 +67,7 @@ const MarketplacePage = () => {
         location: resaleEvents[index]?.[2] || "",
         organiser: resaleEvents[index]?.[3] || "",
         imageUrl: resaleEvents[index]?.[4] || "",
-        price: Number(ticket.price).toString(),
+        price: Number(resaleEvents[index]?.[5]).toString(),
         maxSeats: resaleEvents[index]?.[6]?.toString() || "",
         ticketType: resaleEvents[index]?.[7]?.toString() || "",
         creatorAddress: resaleEvents[index]?.[8] || "",
