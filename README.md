@@ -1,4 +1,4 @@
-# Event Ticketing System (Decentralized)
+# Event Ticketing System (Decentralized) - BlockMiners
 
 ### Team Members:
 - Tanvi Agarwal: 230001075
